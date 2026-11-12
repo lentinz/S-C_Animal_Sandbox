@@ -20,7 +20,11 @@ The v3 audit is in `RHINO-v3-Audit-Report.docx` (and `.md`).
 
 ## Try it
 
-Open `dist/rhino-v3-base.html` in any browser. It is one self-contained file with no server and no network use, so it also works from a course site or an LMS upload. Run history is kept in the browser's local storage (key `rhino-v3-base-runs`).
+**Live page:** [https://lentinz.github.io/S-C_Animal_Sandbox/dist/rhino-v3-base.html](https://lentinz.github.io/S-C_Animal_Sandbox/dist/rhino-v3-base.html) (GitHub Pages, from the `main` branch)
+
+**Repository:** [https://github.com/lentinz/S-C_Animal_Sandbox](https://github.com/lentinz/S-C_Animal_Sandbox)
+
+Or download the repo and open `dist/rhino-v3-base.html` in any browser. The page is one self-contained file with no server and no network use, so it also works from a course site or an LMS upload. Run history is kept in the browser's local storage (key `rhino-v3-base-runs`).
 
 ## How a run works
 
