@@ -1,0 +1,2547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rhino S&amp;C Sandbox</title>
+</head>
+<body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a field-test bench. The rhino and the test scene fill the left, the planner sits on the right,
+   and the three goal ladders and the block timeline run beneath the scene. Condensed gym-poster display type,
+   quiet stone neutrals, one river-blue accent for controls. Each lift keeps one color everywhere it appears. */
+:root {
+  --bg: #E7ECE8; --surface: #F5F8F4; --surface-2: #DCE3DE; --ink: #17211D; --ink-2: #4A5A53; --line: #C3CEC7;
+  --accent: #2B62B8; --accent-ink: #FFFFFF; --accent-soft: #D5E2F5;
+  --good: #2F7A4D; --warn: #A76A12; --warn-soft: #F2E3C6; --danger: #B3372B; --danger-soft: #F3D6D1;
+  --c-push: #2B62B8; --c-pull: #1E7F68; --c-toss: #B8521B;
+  --k-neural: #3D5A80; --k-size: #7A9E7E; --k-anaer: #C9A227; --k-own: #B8521B; --k-spill: #9AA5AD;
+  --sky-top: #C6DCE8; --sky-bot: #E9EFE3; --sun: #F1D78F; --hill: #B4C4B3; --hill-dark: #94A895;
+  --ground: #CDBF9C; --ground-2: #BBAC86; --soil: #8B7355; --shadow: rgba(40, 36, 24, .22);
+  --water: #8FBFD6; --water-2: #6FA6C2; --rope: #8A6A45; --tire: #2C3134; --tire-hi: #596167;
+  --rhino: #8E999E; --rhino-dark: #66737B; --rhino-hi: #B7C1C5; --horn: #E6DECD;
+  --stone: #9C9B93; --stone-dark: #76756E; --bark: #6E5440; --wood: #CBAC80; --dust: rgba(160, 140, 100, .55);
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11181A; --surface: #182124; --surface-2: #222E31; --ink: #E6EEE9; --ink-2: #9FB1AA; --line: #2F3E41;
+    --accent: #78A9EE; --accent-ink: #0B1626; --accent-soft: #1F3350;
+    --good: #6CC592; --warn: #E0A64A; --warn-soft: #3A2E17; --danger: #F08377; --danger-soft: #3F1F1B;
+    --c-push: #78A9EE; --c-pull: #5CC7AD; --c-toss: #F09A5E;
+    --k-neural: #7FA3D1; --k-size: #8FBF94; --k-anaer: #E0BE4A; --k-own: #F09A5E; --k-spill: #7C878E;
+    --sky-top: #16222E; --sky-bot: #2A3A3C; --sun: #C9C6A0; --hill: #26362F; --hill-dark: #1E2C27;
+    --ground: #4B4531; --ground-2: #3C3727; --soil: #2E2618; --shadow: rgba(0, 0, 0, .35);
+    --water: #2D5268; --water-2: #234355; --rope: #A98A60; --tire: #0F1214; --tire-hi: #4A5258;
+    --rhino: #7F8D94; --rhino-dark: #55636A; --rhino-hi: #A8B6BC; --horn: #D8CEB8;
+    --stone: #7B7A72; --stone-dark: #5A5953; --bark: #5A4535; --wood: #A98A60; --dust: rgba(120, 110, 85, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11181A; --surface: #182124; --surface-2: #222E31; --ink: #E6EEE9; --ink-2: #9FB1AA; --line: #2F3E41;
+  --accent: #78A9EE; --accent-ink: #0B1626; --accent-soft: #1F3350;
+  --good: #6CC592; --warn: #E0A64A; --warn-soft: #3A2E17; --danger: #F08377; --danger-soft: #3F1F1B;
+  --c-push: #78A9EE; --c-pull: #5CC7AD; --c-toss: #F09A5E;
+  --k-neural: #7FA3D1; --k-size: #8FBF94; --k-anaer: #E0BE4A; --k-own: #F09A5E; --k-spill: #7C878E;
+  --sky-top: #16222E; --sky-bot: #2A3A3C; --sun: #C9C6A0; --hill: #26362F; --hill-dark: #1E2C27;
+  --ground: #4B4531; --ground-2: #3C3727; --soil: #2E2618; --shadow: rgba(0, 0, 0, .35);
+  --water: #2D5268; --water-2: #234355; --rope: #A98A60; --tire: #0F1214; --tire-hi: #4A5258;
+  --rhino: #7F8D94; --rhino-dark: #55636A; --rhino-hi: #A8B6BC; --horn: #D8CEB8;
+  --stone: #7B7A72; --stone-dark: #5A5953; --bark: #5A4535; --wood: #A98A60; --dust: rgba(120, 110, 85, .5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.app { max-width: 1220px; margin: 0 auto; padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: .01em; margin: 0; text-wrap: balance; line-height: 1; }
+p { margin: 0; }
+.eyebrow { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+/* header */
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-bottom: 16px; }
+.top h1 { font-size: clamp(44px, 9vw, 72px); text-transform: uppercase; }
+.top h1 .h1-pre { display: block; font-size: clamp(16px, 2.6vw, 24px); letter-spacing: .08em; color: var(--ink-2); margin-bottom: 6px; }
+.top .goal { color: var(--ink-2); margin-top: 8px; max-width: 62ch; }
+.top-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.runno { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+.switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; }
+.switch i { width: 36px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); position: relative; flex: none; }
+.switch i::after { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--ink-2); transition: transform .15s; }
+.switch input:checked + i { background: var(--accent); border-color: var(--accent); }
+.switch input:checked + i::after { transform: translateX(16px); background: var(--accent-ink); }
+.switch input:focus-visible + i { outline: 3px solid var(--accent); outline-offset: 2px; }
+.goals { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .goals { grid-template-columns: minmax(0, 1fr); } }
+.goals li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; font-size: 14px; }
+.goals li b { font-family: var(--display); font-size: 20px; letter-spacing: .04em; text-transform: uppercase; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.lift-push { --lc: var(--c-push); } .lift-pull { --lc: var(--c-pull); } .lift-explosive { --lc: var(--c-toss); }
+.dot.l, .goals li b { color: var(--lc); } .dot.l { background: var(--lc); }
+
+/* buttons */
+.btn { appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 14px; cursor: pointer; min-height: 42px; }
+.btn:hover { border-color: var(--ink-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* grid */
+.grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+/* training mode: the animation takes the whole width and the plan controls step aside */
+body.training .grid { grid-template-columns: minmax(0, 1fr); }
+body.training .grid > aside.col { display: none; }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; min-width: 0; }
+
+/* stage */
+.stage { position: relative; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--sky-bot); }
+.stage svg#scene { display: block; width: 100%; height: auto; }
+.hud { position: absolute; left: 12px; top: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; pointer-events: none; z-index: 3; }
+.hud > * { pointer-events: auto; }
+.hud-week { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; }
+.hud-week b { font-family: var(--display); font-size: 22px; line-height: 1; letter-spacing: .02em; }
+.hud-week span { font-size: 11px; color: var(--ink-2); }
+.hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.chip.danger { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+.chip.good { color: var(--good); }
+.understage { display: grid; gap: 8px; padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--line); min-height: 58px; align-content: center; }
+.caption { font-size: 14px; font-weight: 600; }
+.caption small { font-weight: 400; color: var(--ink-2); margin-left: 6px; }
+.force { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 12px; color: var(--ink-2); }
+.force b { font-family: var(--mono); color: var(--ink); font-weight: 500; }
+.fbar { position: relative; height: 12px; border-radius: 6px; background: var(--surface-2); }
+.fbar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 6px; background: var(--lc, var(--accent)); }
+.fbar em { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); }
+.touch { position: absolute; inset: 0; z-index: 2; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.touch:active { cursor: grabbing; }
+.prompt { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; padding: 8px 12px; border-radius: 10px; background: var(--accent-soft); }
+.prompt b { font-size: 15px; }
+.prompt span { font-size: 12px; color: var(--ink-2); flex-basis: 100%; }
+@keyframes puff { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(2.2) translateY(-6px); } }
+.puff { fill: var(--dust); transform-box: fill-box; transform-origin: center; animation: puff .7s ease-out forwards; }
+.puff.breath { fill: var(--rhino-hi); opacity: .6; }
+.puff.splash { fill: none; stroke: var(--surface); stroke-width: 2; }
+@media (max-width: 560px) {
+  .hud { position: static; padding: 10px 12px; background: var(--surface); border-bottom: 1px solid var(--line); align-items: center; }
+  .hud-week { border: 0; padding: 0; background: none; flex-direction: row; align-items: baseline; gap: 8px; }
+  .hud-week b { font-size: 20px; }
+  .hud-right { flex-direction: row; align-items: center; }
+  .stagewrap { position: relative; }
+}
+.stagewrap { position: relative; }
+
+/* ladders */
+.ladders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 620px) { .ladders { grid-template-columns: minmax(0, 1fr); } }
+.ladder h3 { font-size: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.readout { font-family: var(--display); font-weight: 800; font-size: 34px; line-height: 1; margin: 6px 0 2px; }
+.readout small { font-family: var(--mono); font-size: 12px; font-weight: 500; margin-left: 6px; }
+.ladder .sub { font-size: 12px; color: var(--ink-2); margin-bottom: 8px; min-height: 18px; }
+.rungs { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rung { display: grid; grid-template-columns: 18px minmax(0, 1fr) 30px; align-items: center; gap: 8px; font-size: 13px; }
+.rung .st { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 700; }
+.rung.is-cleared .st { background: var(--good); border-color: var(--good); color: var(--bg); }
+.rung .nm { display: flex; justify-content: space-between; gap: 6px; }
+.rung.goal .nm span:first-child { font-weight: 600; }
+.rung .bar { grid-column: 2 / 4; height: 8px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+.rung .bar i { display: block; height: 100%; width: 0; background: var(--lc); border-radius: 5px; transition: width .7s cubic-bezier(.2,.7,.2,1); }
+.rung.is-cleared .bar i { background: var(--good); }
+.rung .need { font-family: var(--mono); font-size: 11px; color: var(--ink-2); text-align: right; }
+
+/* timeline */
+.tl { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 4px; row-gap: 6px; }
+.tl-label { font-size: 11px; color: var(--ink-2); font-weight: 600; letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell { height: 26px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+.cell.done { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+.cell.now { border-color: var(--accent); border-width: 2px; color: var(--ink); }
+.cell.flat { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.cell.hurt { background: var(--danger-soft); border-color: transparent; color: var(--danger); }
+.cell.rest { background: var(--danger-soft); border-color: transparent; color: var(--danger); background-image: repeating-linear-gradient(135deg, transparent 0 4px, rgba(179,55,43,.2) 4px 6px); }
+.cell.test { border-style: dashed; }
+.cell.test.done { background: var(--accent); color: var(--accent-ink); border-style: solid; }
+.tl-key { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.tl-key span { display: inline-flex; align-items: center; gap: 6px; }
+.tl-key i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); display: inline-block; }
+
+/* panel */
+.panel h2 { font-size: 32px; margin: 6px 0 10px; text-transform: uppercase; }
+.panel p.lead { color: var(--ink-2); margin-bottom: 14px; }
+.rules { margin: 0 0 18px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.rules li { padding-left: 18px; position: relative; }
+.rules li::before { content: ""; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
+.liftcard { border: 1px solid var(--line); border-left: 4px solid var(--lc); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; margin-bottom: 12px; background: var(--bg); }
+.liftcard h3 { font-size: 20px; text-transform: uppercase; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.liftcard h3 small { font-family: var(--body); font-size: 12px; font-weight: 500; color: var(--ink-2); letter-spacing: 0; text-transform: none; text-align: right; }
+.frow { display: grid; grid-template-columns: 74px minmax(0, 1fr) 62px; gap: 10px; align-items: center; }
+.frow label { font-size: 13px; font-weight: 600; }
+.frow input[type=range] { width: 100%; height: 26px; accent-color: var(--accent); margin: 0; }
+.frow output { font-family: var(--mono); font-size: 13px; text-align: right; }
+.note { font-size: 12px; color: var(--ink-2); }
+.note.warn { color: var(--warn); font-weight: 600; }
+.note.bad { color: var(--danger); font-weight: 600; }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 6px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; background: var(--surface); text-align: center; }
+.seg label small { font-weight: 400; font-size: 11px; color: var(--ink-2); }
+.seg input:checked + label { border-color: var(--accent); background: var(--accent-soft); }
+.seg input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
+.shared { display: grid; gap: 12px; margin: 14px 0; }
+.shared .lbl { font-weight: 600; font-size: 13px; margin-bottom: 4px; display: block; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+.check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+.preview { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 14px; display: grid; gap: 4px; font-size: 13px; margin-bottom: 14px; background: var(--bg); }
+.refcard { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; display: grid; gap: 4px; }
+.refcard b { font-weight: 600; }
+.results { list-style: none; margin: 12px 0 16px; padding: 0; display: grid; gap: 8px; }
+.results li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-left: 4px solid var(--lc); border-radius: 10px; font-size: 14px; }
+.results li .v { font-family: var(--mono); font-size: 15px; }
+.results li .o { grid-column: 1 / 3; font-size: 13px; color: var(--ink-2); }
+.results li .o.ok { color: var(--good); font-weight: 600; }
+.helpd { margin: 4px 0 14px; font-size: 13px; }
+.helpd summary { cursor: pointer; font-weight: 600; color: var(--ink-2); }
+.helpd dl { margin: 8px 0 0; display: grid; gap: 6px; }
+.helpd dt { font-weight: 600; } .helpd dd { margin: 0; color: var(--ink-2); }
+.choice { display: grid; gap: 10px; margin: 12px 0; }
+.choice .opt { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.choice .opt b { font-size: 15px; } .choice .opt p { font-size: 13px; color: var(--ink-2); }
+.symptom { padding: 12px 14px; border-radius: 12px; background: var(--danger-soft); color: var(--danger); font-weight: 600; margin-bottom: 12px; }
+.symptom.warn { background: var(--warn-soft); color: var(--warn); }
+.symptom.good { background: var(--accent-soft); color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+tr.cur td { background: var(--accent-soft); }
+td.low { color: var(--warn); font-weight: 600; }
+
+.diary { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+.diary summary { cursor: pointer; font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.diary ol { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; font-size: 13px; }
+.diary li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; }
+.diary li b { font-family: var(--mono); font-weight: 500; color: var(--ink-2); }
+.diary .sig { color: var(--ink-2); display: block; }
+.diary .sym { display: block; font-weight: 600; }
+.diary .sym.warn { color: var(--warn); } .diary .sym.danger { color: var(--danger); } .diary .sym.good { color: var(--good); }
+.diary .empty { color: var(--ink-2); }
+
+/* debrief */
+.debrief { margin-top: 28px; display: grid; gap: 16px; }
+.score-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; }
+@media (max-width: 560px) { .score-row { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+.score { font-family: var(--display); font-weight: 800; font-size: clamp(72px, 14vw, 112px); line-height: .85; }
+.score small { font-size: 22px; color: var(--ink-2); font-weight: 700; margin-left: 4px; }
+.score-row h2 { font-size: clamp(30px, 5vw, 44px); text-transform: uppercase; }
+.pts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.pts .chip { font-family: var(--mono); font-weight: 500; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 960px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.card h3 { font-size: 24px; text-transform: uppercase; margin-bottom: 4px; }
+.card .sub { color: var(--ink-2); font-size: 13px; margin-bottom: 12px; }
+.chartbox { width: 100%; min-width: 0; }
+.chartbox svg { display: block; width: 100%; height: auto; }
+.chart .grid-l { stroke: var(--line); stroke-width: 1; opacity: .6; }
+.chart .thr { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 4 4; opacity: .7; }
+.chart text { fill: var(--ink-2); font-family: var(--body); font-size: 12px; }
+.chart text.t-strong { fill: var(--ink); font-weight: 600; }
+.chart .ln { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart .s-push { stroke: var(--c-push); } .chart .s-pull { stroke: var(--c-pull); stroke-dasharray: 9 4; } .chart .s-toss { stroke: var(--c-toss); stroke-dasharray: 3 4; }
+.chart .f-push { fill: var(--c-push); } .chart .f-pull { fill: var(--c-pull); } .chart .f-toss { fill: var(--c-toss); }
+.chart .dot { fill: var(--surface); stroke-width: 2.5; }
+.chart text.f-push { fill: var(--c-push); } .chart text.f-pull { fill: var(--c-pull); } .chart text.f-toss { fill: var(--c-toss); }
+.chart text.f-warn { fill: var(--warn); } .chart text.f-dang { fill: var(--danger); }
+.chart .s-warn { stroke: var(--warn); } .chart .s-dang { stroke: var(--danger); stroke-dasharray: 7 4; }
+.chart .s-cent { stroke: var(--k-neural); stroke-dasharray: 9 3; } .chart text.f-cent, .chart .f-cent { fill: var(--k-neural); }
+.chart .f-warn { fill: var(--warn); } .chart .f-dang { fill: var(--danger); }
+.chart .shade { fill: var(--danger-soft); }
+.chart .s-old { stroke: var(--ink-2); opacity: .45; stroke-width: 1.8; } .chart .s-cur { stroke: var(--accent); stroke-width: 3; }
+.contrib { display: grid; gap: 14px; }
+.contrib .row { display: grid; gap: 4px; }
+.contrib .row .hd { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+.stack { display: flex; height: 22px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.stack i { display: block; height: 100%; min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.finds { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.finds li { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); display: grid; gap: 2px; }
+.finds li b { font-size: 14px; } .finds li span { color: var(--ink-2); font-size: 14px; }
+.finds li.danger { background: var(--danger-soft); border-color: transparent; }
+.finds li.warn { background: var(--warn-soft); border-color: transparent; }
+.finds li.good { background: var(--accent-soft); border-color: transparent; }
+.whatif { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.whatif li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; align-items: center; }
+.whatif li .d { font-family: var(--mono); color: var(--good); font-weight: 500; }
+.whatif li small { grid-column: 1 / 3; color: var(--ink-2); font-size: 12px; }
+
+/* scene */
+.r-body { fill: var(--rhino); } .r-dark, .r-hoof { fill: var(--rhino-dark); }
+.r-tail { fill: none; stroke: var(--rhino-dark); stroke-width: 6; stroke-linecap: round; }
+.r-horn { fill: var(--horn); }
+.r-line { fill: none; stroke: var(--rhino-dark); stroke-width: 2; opacity: .45; stroke-linecap: round; }
+.r-def { fill: none; stroke: var(--rhino-hi); stroke-width: 3.5; stroke-linecap: round; }
+.r-eye { fill: var(--ink); }
+.r-squint { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+.r-harness { fill: none; stroke: var(--rope); stroke-width: 9; stroke-linecap: round; }
+.o-stone { fill: var(--stone); } .o-stone-d { fill: none; stroke: var(--stone-dark); stroke-width: 2; stroke-linecap: round; opacity: .7; vector-effect: non-scaling-stroke; }
+.o-bark { fill: var(--bark); } .o-wood { fill: var(--wood); }
+.o-ring { fill: none; stroke: var(--bark); stroke-width: 1.5; opacity: .6; }
+.o-root { fill: none; stroke: var(--bark); stroke-linecap: round; }
+.o-rope { stroke: var(--rope); stroke-width: 3; stroke-linecap: round; }
+.o-flag { fill: var(--accent); } .o-pole { stroke: var(--ink-2); stroke-width: 2; }
+@media (prefers-reduced-motion: reduce) { .rung .bar i, .switch i::after { transition: none; } .puff { animation: none; opacity: 0; } }
+
+/* v3 additions */
+:root { --s1: #2F7A4D; --s2: #6E8F2E; --s3: #A98A12; --s4: #C2651A; --s5: #B3372B; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --s1: #6CC592; --s2: #A3C65B; --s3: #E0C050; --s4: #EC9A52; --s5: #F08377; } }
+:root[data-theme="dark"] { --s1: #6CC592; --s2: #A3C65B; --s3: #E0C050; --s4: #EC9A52; --s5: #F08377; }
+.qm { appearance: none; width: 13px; height: 13px; position: relative; border-radius: 50%; border: 1.5px solid currentColor; background: transparent; color: var(--ink-2); font: 700 9px/1 var(--body); cursor: pointer; padding: 0; vertical-align: middle; display: inline-grid; place-items: center; letter-spacing: 0; text-transform: none; }
+.qm::after { content: ""; position: absolute; inset: -10px; }
+.qm:hover { color: var(--ink); }
+.qm[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.pop { position: absolute; z-index: 30; width: min(320px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--ink-2); border-radius: 12px; padding: 12px 14px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.pop b { display: block; margin-bottom: 4px; font-family: var(--display); font-size: 20px; text-transform: uppercase; }
+.modal { position: fixed; inset: 0; z-index: 40; background: rgba(10,16,14,.55); display: grid; place-items: center; padding: 16px; }
+.mbox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; width: min(420px, 100%); display: grid; gap: 12px; }
+.mbox h3 { font-size: 26px; text-transform: uppercase; } .mbox p { color: var(--ink-2); }
+.prog { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 620px) { .prog { grid-template-columns: minmax(0, 1fr); } }
+.prog h3 { font-size: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.prog .big { font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1; margin: 6px 0 2px; }
+.prog .big small { font-family: var(--mono); font-size: 12px; font-weight: 500; margin-left: 6px; color: var(--ink-2); }
+.pbar { position: relative; height: 12px; border-radius: 7px; background: var(--surface-2); margin: 8px 0 6px; }
+.pbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--lc); transition: width .7s cubic-bezier(.2,.7,.2,1); }
+.pbar em { position: absolute; top: -4px; bottom: -4px; width: 3px; background: var(--ink); border-radius: 2px; }
+.pbar.done i { background: var(--good); }
+.prog .sub { font-size: 12px; color: var(--ink-2); min-height: 18px; }
+.reps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rd { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font: 600 12px/1 var(--mono); border: 2px dashed var(--line); color: var(--ink-2); }
+.rd.s5 { background: var(--s1); border: 0; color: #fff; } .rd.s4 { background: var(--s2); border: 0; color: #fff; } .rd.s3 { background: var(--s3); border: 0; color: #fff; }
+.rd.s2 { background: var(--s4); border: 0; color: #fff; } .rd.s1 { background: var(--s5); border: 0; color: #fff; }
+.rd.miss { border: 2px solid var(--s5); color: var(--s5); font-weight: 700; }
+.reps .rl { font-size: 12px; color: var(--ink-2); margin-left: 6px; }
+.vitals { display: flex; flex-wrap: wrap; gap: 6px 28px; font-size: 13px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.vitals.pulse .sc { animation: vpulse .9s ease-out; }
+@keyframes vpulse { from { opacity: .25; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .vitals.pulse .sc { animation: none; } }
+.stagewrap { transition: filter .5s, opacity .5s; }
+.stagewrap.dim { filter: grayscale(1); opacity: .4; }
+.wkstrip { padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.wk-grid { display: grid; grid-template-columns: 78px repeat(var(--n), minmax(0, 1fr)); gap: 8px 10px; align-items: start; font-size: 13px; }
+.wk-h { font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.wk-h small { display: block; font-weight: 500; text-transform: none; letter-spacing: 0; }
+.wk-r { color: var(--ink-2); font-weight: 600; }
+.wk-c { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; transition: opacity .4s; }
+.wk-m { display: flex; align-items: center; gap: 6px; height: 24px; }
+.wk-c .chg { height: 16px; line-height: 16px; }
+.wk-r { height: 24px; display: flex; align-items: center; }
+.wk-c .pips { flex: none; }
+.wk-c b, .wk-h { transition: opacity .4s; }
+.wk-c.hid, .wk-h.hid { opacity: 0; }
+.chg { font-size: 12px; color: var(--ink-2); } .chg.bad { color: var(--danger); font-weight: 700; } .chg.good { color: var(--good, #2E7D57); font-weight: 700; }
+.wk-list { display: none; gap: 8px; }
+.wk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding: 6px 0; border-top: 1px solid var(--line); transition: opacity .4s; }
+.wk-row:first-child { border-top: 0; } .wk-row.hid { opacity: 0; }
+.wk-row > b { flex: 0 0 100%; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.wk-row small { font-weight: 500; text-transform: none; letter-spacing: 0; }
+.wk-it { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; } .wk-it .nm { color: var(--ink-2); font-weight: 600; min-width: 62px; }
+@media (max-width: 700px) { .wk-grid { display: none; } .wk-list { display: grid; } }
+.pips.dots { border: 0; padding: 0; gap: 4px; }
+.pips.dots i { width: 11px; height: 11px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink-2); }
+.pips.dots i.on { box-shadow: none; }
+.wq { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 13px; }
+.wq .rl { color: var(--ink-2); font-size: 12px; }
+.wq .wi { display: inline-flex; align-items: center; gap: 6px; }
+.sc { display: inline-flex; align-items: center; gap: 6px; }
+.sc .nm { color: var(--ink-2); font-weight: 600; }
+.pips { display: inline-flex; gap: 2px; padding: 2px; border: 1.5px solid var(--ink-2); border-radius: 4px; position: relative; }
+.pips.batt::after { content: ""; position: absolute; right: -5px; top: 50%; width: 3px; height: 8px; margin-top: -4px; background: var(--ink-2); border-radius: 0 2px 2px 0; }
+.pips i { width: 8px; height: 10px; border-radius: 1px; background: var(--surface-2); display: block; }
+.pips i.on.c1 { background: var(--s1); } .pips i.on.c2 { background: var(--s2); } .pips i.on.c3 { background: var(--s3); } .pips i.on.c4 { background: var(--s4); } .pips i.on.c5 { background: var(--s5); }
+.sc b { font-family: var(--mono); font-weight: 500; }
+.liftcard h3 > span:first-child { white-space: nowrap; }
+.diary .sc { margin-right: 10px; }
+.srchelp b { display: inline; font-family: inherit; font-size: inherit; font-weight: 700; text-transform: none; margin: 0; }
+.srchelp { margin: 6px 0 0; padding-left: 16px; display: grid; gap: 6px; font-size: 13px; }
+.ruline { font-size: 13px; color: var(--ink-2); margin: -2px 0 0 84px; }
+.ruline b { color: var(--ink); font-weight: 600; }
+.liftcard h3 small .qm { margin-left: 4px; }
+.numin { width: 62px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-family: var(--mono); font-size: 13px; text-align: right; }
+.numin.bad { border-color: var(--danger); }
+.frow.load { grid-template-columns: 74px minmax(0, 1fr) 84px; }
+.frow .pc { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; justify-self: end; }
+.carry { font-size: 12px; color: var(--ink-2); border-left: 3px solid var(--accent); padding-left: 8px; }
+.introcards { display: grid; gap: 8px; margin: 0 0 16px; }
+.introcards div { border: 1px solid var(--line); border-left: 4px solid var(--lc); border-radius: 10px; padding: 8px 12px; font-size: 14px; background: var(--bg); }
+.introcards b { font-family: var(--display); font-size: 18px; text-transform: uppercase; color: var(--lc); display: block; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); margin-left: 6px; }
+.badge.pr { background: var(--good); color: #fff; }
+.principles { display: grid; gap: 10px; }
+.principles .pc2 { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+.principles .pc2 b { font-size: 15px; } .principles .pc2 .ask { font-style: italic; color: var(--ink-2); font-size: 14px; }
+.notmet { margin-top: 12px; font-size: 13px; } .notmet summary { cursor: pointer; font-weight: 600; color: var(--ink-2); }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <h1><span class="h1-pre">Strength &amp; Conditioning Virtual Sandbox:</span> Rhino</h1>
+      <p class="goal">Build maximal pushing and pulling strength, and explosiveness. Collect baseline data, set training parameters, complete training sessions, retest, and adjust your strategies.</p>
+    </div>
+    <div class="top-actions">
+      <span class="runno" id="runNo">Run 1</span>
+      <button class="btn small" id="btnRestart" type="button">Restart run</button>
+    </div>
+  </header>
+
+  <ul class="goals" aria-label="The three goals">
+    <li class="lift-push"><b>Push <button class="qm" type="button" data-help="push" aria-label="About the push" aria-expanded="false">?</button></b><span>Push the giant boulder to the top of the mound.</span></li>
+    <li class="lift-pull"><b>Pull <button class="qm" type="button" data-help="pull" aria-label="About the pull" aria-expanded="false">?</button></b><span>Pull the giant stump out of the ground.</span></li>
+    <li class="lift-explosive"><b>Toss <button class="qm" type="button" data-help="explosive" aria-label="About the toss" aria-expanded="false">?</button></b><span>Toss the tractor tire over the river.</span></li>
+  </ul>
+
+  <main class="grid">
+    <div class="col">
+      <div class="stage">
+        <div class="hud">
+          <div class="hud-week"><b id="hudWeek">Week 0 of 12</b><span id="hudBlock">Baseline tests</span></div>
+          <div class="hud-right">
+            <span class="chip" id="hudStatus" hidden></span>
+            <button class="btn small" id="btnSkip" type="button" hidden>Skip animation</button>
+          </div>
+        </div>
+        <div class="stagewrap">
+          <svg id="scene" viewBox="0 0 760 340" role="img" aria-label="The rhino and the test scene">
+            <defs>
+              <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/>
+              </linearGradient>
+              <clipPath id="aboveGround"><rect x="0" y="0" width="760" height="262"/></clipPath>
+            </defs>
+            <rect x="0" y="0" width="760" height="280" fill="url(#skyG)"/>
+            <circle cx="690" cy="52" r="24" style="fill:var(--sun)" opacity=".85"/>
+            <path d="M0,214 C90,180 170,196 260,204 C350,212 430,176 530,188 C630,200 700,178 760,190 L760,280 L0,280 Z" style="fill:var(--hill)"/>
+
+            <g id="sc-push">
+              <path d="M0,262 L260,262 L665,172 L760,172 L760,340 L0,340 Z" style="fill:var(--ground)"/>
+              <path d="M0,306 L260,306 L665,236 L760,236 L760,340 L0,340 Z" style="fill:var(--ground-2)" opacity=".7"/>
+              <g id="flagP"><line class="o-pole" x1="700" y1="172" x2="700" y2="128"/><path class="o-flag" d="M700,128 L728,137 L700,146 Z"/></g>
+              <ellipse id="bShadow" cx="0" cy="0" rx="30" ry="5" style="fill:var(--shadow)"/>
+              <g id="boulder"><g id="boulderSpin">
+                <path class="o-stone" d="M-1,0.1 C-1,-0.6 -0.55,-1 0,-1 C0.6,-1 1,-0.55 1,0.05 C1,0.65 0.6,1 0,1 C-0.6,1 -1,0.7 -1,0.1 Z"/>
+                <path class="o-stone-d" d="M-0.5,-0.35 C-0.25,-0.6 0.1,-0.6 0.35,-0.4 M0.3,0.2 C0.5,0.3 0.6,0.5 0.55,0.65"/>
+              </g></g>
+            </g>
+
+            <g id="sc-pull" style="display:none">
+              <rect x="0" y="262" width="760" height="78" style="fill:var(--ground)"/>
+              <rect x="0" y="304" width="760" height="36" style="fill:var(--ground-2)" opacity=".7"/>
+              <ellipse id="hole" cx="600" cy="264" rx="34" ry="7" style="fill:var(--soil)" opacity="0"/>
+              <g clip-path="url(#aboveGround)"><g id="stump"></g></g>
+              <ellipse id="mound" cx="600" cy="262" rx="46" ry="6" style="fill:var(--ground-2)"/>
+            </g>
+
+            <g id="sc-toss" style="display:none">
+              <rect x="0" y="262" width="760" height="78" style="fill:var(--ground)"/>
+              <rect x="0" y="304" width="760" height="36" style="fill:var(--ground-2)" opacity=".7"/>
+              <rect id="water" x="400" y="262" width="110" height="78" style="fill:var(--water)"/>
+              <rect id="water2" x="400" y="290" width="110" height="50" style="fill:var(--water-2)" opacity=".6"/>
+              <path id="ripples" d="" fill="none" style="stroke:var(--surface)" stroke-width="1.5" opacity=".5" stroke-linecap="round"/>
+              <g id="flagT"><line class="o-pole" x1="540" y1="262" x2="540" y2="218"/><path class="o-flag" d="M540,218 L568,227 L540,236 Z"/></g>
+            </g>
+
+            <g id="ghost"></g>
+            <g id="rhinoPos">
+              <g id="rRig">
+                <ellipse id="rShadow" cx="270" cy="264" rx="176" ry="9" style="fill:var(--shadow)"/>
+                <g id="legFarB"><rect class="r-dark" x="196" y="206" width="36" height="52" rx="12"/><rect class="r-hoof" x="192" y="250" width="44" height="12" rx="5"/></g>
+                <g id="legFarF"><rect class="r-dark" x="286" y="206" width="36" height="52" rx="12"/><rect class="r-hoof" x="282" y="250" width="44" height="12" rx="5"/></g>
+                <g id="rTail"><path class="r-tail" d="M122,148 C98,150 88,172 92,200"/><ellipse class="r-hoof" cx="92" cy="207" rx="6" ry="10"/></g>
+                <g id="rBodyG">
+                  <path class="r-body" d="M118,168 C116,128 168,108 236,108 C304,108 348,126 352,166 C356,204 336,232 300,234 L156,234 C128,234 120,204 118,168 Z"/>
+                  <path class="r-dark" opacity=".3" d="M124,198 C150,222 300,228 348,194 C346,222 328,234 300,234 L156,234 C136,234 126,220 124,198 Z"/>
+                  <ellipse id="rHump" class="r-body" cx="300" cy="140" rx="50" ry="38"/>
+                  <path id="rDef" class="r-def" d="M258,124 C278,112 312,114 332,136 M148,132 C164,118 192,118 208,132" opacity="0"/>
+                  <path class="r-line" d="M298,124 C292,160 296,196 304,226 M172,132 C166,166 170,200 180,230"/>
+                  <path id="rHarness" class="r-harness" d="M282,108 C290,150 292,196 286,232" style="display:none"/>
+                </g>
+                <g id="legNearB"><rect class="r-body" x="146" y="206" width="36" height="52" rx="12"/><rect class="r-hoof" x="142" y="250" width="44" height="12" rx="5"/></g>
+                <g id="legNearF"><rect class="r-body" x="316" y="206" width="36" height="52" rx="12"/><rect class="r-hoof" x="312" y="250" width="44" height="12" rx="5"/></g>
+                <g id="rHead">
+                  <path class="r-dark" d="M376,202 C408,210 440,210 458,196 L454,208 C432,220 396,218 370,208 Z"/>
+                  <path class="r-body" d="M330,126 C372,108 414,124 448,166 L458,196 C440,208 406,208 376,202 L336,192 Z"/>
+                  <path class="r-horn" d="M438,160 C446,138 458,120 476,102 C476,128 470,152 458,172 Z"/>
+                  <path class="r-horn" d="M406,146 C410,132 418,122 428,116 C430,132 428,146 422,156 Z"/>
+                  <path class="r-dark" d="M350,122 C348,106 358,96 366,92 C372,102 374,114 368,126 Z"/>
+                  <circle id="rEye" class="r-eye" cx="404" cy="160" r="4"/>
+                  <path id="rSquint" class="r-squint" d="M397,158 L411,162 M396,150 L412,154" style="display:none"/>
+                  <ellipse class="r-dark" cx="448" cy="190" rx="4" ry="2.5"/>
+                  <path class="r-line" d="M372,150 C384,146 394,148 402,154"/>
+                </g>
+              </g>
+            </g>
+            <line id="rope" class="o-rope" x1="0" y1="0" x2="0" y2="0" style="display:none"/>
+            <g id="tire" style="display:none"></g>
+            <g id="fx"></g>
+          </svg>
+        </div>
+        <div class="understage">
+          <div class="vitals" id="vitals" hidden></div>
+          <div class="wkstrip" id="wkstrip" hidden></div>
+          <div class="caption" id="caption" aria-live="polite">Three tests: a push, a pull and a toss.</div>
+          <div class="reps" id="reps" hidden></div>
+        </div>
+      </div>
+
+      <section class="card" aria-label="Progress toward each goal"><div class="prog" id="ladders"></div></section>
+
+      <section class="card" aria-labelledby="tlT">
+        <p class="eyebrow" id="tlT" style="margin-bottom:10px">12-week run</p>
+        <div class="tl" id="timeline"></div>
+        <div class="tl-key" id="tlKey"></div>
+      </section>
+    </div>
+
+    <aside class="col"><section class="card panel" id="panel"></section></aside>
+  </main>
+
+  <div class="pop" id="pop" role="dialog" hidden></div>
+  <div class="modal" id="modal" hidden><div class="mbox" role="alertdialog" aria-modal="true" aria-labelledby="mT" aria-describedby="mD">
+    <h3 id="mT"></h3><p id="mD"></p><div class="btn-row"><button class="btn primary" id="mYes" type="button">Confirm</button><button class="btn" id="mNo" type="button">Go back</button></div>
+  </div></div>
+  <section class="debrief" id="debrief" hidden aria-label="Run debrief"></section>
+</div>
+
+<script>
+/* Rhino engine, version 3 (base model).
+   Each lift is shown as percent of the way to its goal (50 at baseline, 100 at the goal).
+   Reps at a given load follow the NSCA training load chart. Rest is set per exercise.
+   Directional, not exact. Deterministic: same plan and same decisions give the same result.
+   Realistic-model hooks: opts.traits (recovery, toughness). Events, budget and noise come in a later step. */
+(function (root) {
+  'use strict';
+
+  var LIFTS = ['push', 'pull', 'explosive'];
+
+  var CFG = {
+    start: 100,
+    weeksPerBlock: 4,
+    blocks: 3,
+    goals: { push: 126, pull: 126, explosive: 122 },   // index that equals 100% of the way to the goal
+    overtrainF: 80,
+    loadRange: [20, 100, 1],
+    restRange: [0.5, 5, 0.5],
+    plateau: { rate: 0.12, weight: 0.8, units: 2.5, volume: 0.1, reps: 1 },
+    densityK: 0.025, densityFree: 8,
+    // best-case weekly gains, in index points
+    GN: 3.48,   // neural, push and pull
+    GS: 1.56,   // muscle size, push and pull
+    GA: 1.2,   // anaerobic capacity, push only
+    GE: 2.88,   // explosive, own training
+    neuralCapBase: 20, neuralCapPerSize: 0.9, sizeCap: 14, anaerCap: 8,
+    explosiveCapBase: 22, explosiveCapPerStrength: 0.4,
+    spillToExplosive: 0.33, spillExplosiveCap: 12, spillGraceWeeks: 4, spillHalfWeeks: 1,
+    spillBetweenStrength: 0.2, spillFromExplosive: 0.12, spillStrengthCap: 8,
+    chronic0: 22,
+    capacity: 63,          // total index points the rhino can gain across all three lifts in one run
+    capacitySoft: 8,       // gains slow over the last few points before the capacity
+    deloadBonusMax: 0.02,
+    rdyK: 0.8, recCk: 0.34, blendK: 0.8, slipK: 0.8, slipOff: 48, dlOff: 20, dlSpan: 25,
+    fatigueScale: 0.62,
+    event: {
+      need:     { mild: 1, moderate: 2, severe: 3.5 },
+      gainPen:  { mild: 0.15, moderate: 0.4, severe: 0.7 },
+      testPen:  { mild: 0.05, moderate: 0.12, severe: 0.25 },
+      healMult: { mild: 1, moderate: 0.6, severe: 0.2 }
+    }
+  };
+
+  var SLEEP_GAIN = { poor: 0.65, adequate: 0.96, good: 1 };
+  var SLEEP_SIZE = { poor: 0.6, adequate: 0.95, good: 1 };
+  var SLEEP_REC  = { poor: 0.65, adequate: 1, good: 1.08 };
+  var FUEL_REC   = { low: 0.75, adequate: 1, high: 1.04 };
+  var FUEL_SIZE  = { low: 0.35, adequate: 1, high: 1.12 };
+  var FREQ       = [0, 0.88, 0.97, 1, 1, 0.97, 0.93, 0.86];
+  var INTENT     = { controlled: 0.4, brisk: 0.72, maximal: 1 };
+  // Toss speed of effort is a 0 to 100 slider (older plans may still use the three named levels). The speed the rhino actually
+  // produces is the intent times a force-velocity factor that falls as the load rises. The result is hidden from the student and
+  // shows up in rep quality and toss gains.
+  var VEL = [[30, 1], [50, 1], [60, 0.9], [75, 0.75], [90, 0.6], [100, 0.5]];
+  function intentPct(lp) { var v = lp && lp.intent; if (typeof v === 'string') return { controlled: 40, brisk: 72, maximal: 100 }[v] || 0; return +v || 0; }
+  function velFactor(load) {
+    if (load <= VEL[0][0]) return 1;
+    for (var i = 1; i < VEL.length; i++) if (load <= VEL[i][0]) return VEL[i - 1][1] + (VEL[i][1] - VEL[i - 1][1]) * (load - VEL[i - 1][0]) / (VEL[i][0] - VEL[i - 1][0]);
+    return VEL[VEL.length - 1][1];
+  }
+  function speedOf(lp, lift) { return lift === 'explosive' ? (intentPct(lp) || 40) / 100 * velFactor(lp.load) : INTENT.controlled; }
+  var SEV        = ['mild', 'moderate', 'severe'];
+  // Two kinds of fatigue. Peripheral fatigue (sim.F) comes from volume, high reps, short rests and low fueling and clears fairly fast.
+  // Central fatigue (sim.C) comes from heavy loads, near-failure sets at high load and all-out speed, and clears slowly.
+  // Each lift weighs the two differently when readiness is worked out.
+  var CW = { push: 0.3, pull: 0.6, explosive: 0.7 };                     // central share of each lift's readiness
+  function readyOf(Fe) { return Fe < 35 ? 1 : Math.max(0.15, 1 - (Fe - 35) * 0.015); }
+  function fatL(sim, l) { return (1 - CW[l]) * sim.F + CW[l] * sim.C; }
+  // Rest beyond 3 minutes helps the pull and toss only a little, and only when sets finish close to failure and there are many sets.
+  var REST_X = [[3, 0], [4, 0.03], [5, 0.035]];
+  function restBonus(rest, x, sets) {
+    if (rest <= 3 || !x || !x.canLift) return 0;
+    var near = clamp((3 - x.rir) / 2, 0, 1), many = clamp(sets / 5, 0, 1);
+    return pw(REST_X, rest) * near * many;
+  }
+  var TOSS_SETS = 6;                                                     // sets per session after which extra toss sets stop paying
+
+  function clamp(x, a, b) { return Math.min(b, Math.max(a, x)); }
+  function copy(o) { return JSON.parse(JSON.stringify(o)); }
+  /* piecewise-linear lookup through [x, y] points sorted by x */
+  function pw(pts, x) {
+    if (x <= pts[0][0]) return pts[0][1];
+    for (var i = 1; i < pts.length; i++) {
+      if (x <= pts[i][0]) { var a = pts[i - 1], b = pts[i]; return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]); }
+    }
+    return pts[pts.length - 1][1];
+  }
+  /* NSCA training load chart: percent of 1RM and the most reps allowed. Below 70% it continues the same trend. */
+  var NSCA = [[30, 60], [50, 28], [60, 19], [65, 15], [70, 12], [75, 10], [77, 9], [80, 8], [83, 7], [85, 6],
+              [87, 5], [90, 4], [93, 3], [95, 2], [100, 1]];
+  function rmaxAt(rel) { return pw(NSCA, rel); }
+  var REST_E = [[0.5, 0.5], [1, 0.62], [2, 0.85], [3, 1]];                       // toss: quality of each effort
+  var REST_A = [[0.5, 1], [1, 1], [2, 0.85], [3, 0.5], [4, 0.3], [5, 0.3]];     // push: anaerobic stimulus from short rests
+  var REST_Q = [[0.5, 0.55], [1, 0.65], [2, 0.85], [3, 1]];                      // rep quality
+  var SORE_REC = { poor: 1.12, adequate: 1, good: 0.92 };
+  var REC_PEN = { poor: 10, adequate: 3, good: 0 };
+  var FUEL_PEN = { low: 8, adequate: 0, high: -2 };
+  function recovOf(plan) { return plan.recovery || plan.sleep; }
+  function qRest(rest, x, lp, l) { return rest <= 3 ? pw(REST_Q, rest) : 1 + (l === 'push' ? 0 : restBonus(rest, x, lp.sets)); }
+  function qSets(lp, l) { return l === 'explosive' ? clamp(1 - 0.035 * Math.max(0, lp.sets - TOSS_SETS), 0.75, 1) : 1; }
+  function restOf(plan, lp) { return lp && lp.rest != null ? lp.rest : (plan.rest != null ? plan.rest : 3); }
+
+  function newSim(opts) {
+    opts = opts || {};
+    var t = opts.traits || {};
+    return {
+      week: 0,
+      lifts: {
+        push:      { neural: 0, size: 0, anaer: 0, own: 0, spill: 0, acc: 0, prev: null },
+        pull:      { neural: 0, size: 0, anaer: 0, own: 0, spill: 0, acc: 0, prev: null },
+        explosive: { neural: 0, size: 0, anaer: 0, own: 0, spill: 0, acc: 0, prev: null }
+      },
+      max: { push: CFG.start, pull: CFG.start, explosive: CFG.start },   // latest tested max, used for percentages
+      F: 0, C: 0, T: 0, chronic: CFG.chronic0, fatHigh: 0, deloadFat: 0,
+      event: null, pending: false, rest: null, lastDeload: false,
+      events: [], log: [], tests: [], totalSets: 0,
+      best: { push: 50, pull: 50, explosive: 50 }, lastSore: 1,
+      traits: { recovery: t.recovery || 1, toughness: t.toughness || 1 }
+    };
+  }
+
+  function index(sim, l) {
+    var s = sim.lifts[l];
+    return CFG.start + s.neural + s.size + s.anaer + s.own + s.spill;
+  }
+  var PARTS = ['neural', 'size', 'anaer', 'own', 'spill'];
+  function totalGain(sim) {
+    var n = 0;
+    LIFTS.forEach(function (l) { PARTS.forEach(function (k) { n += sim.lifts[l][k]; }); });
+    return n;
+  }
+  function strengthGain(sim) {
+    var p = sim.lifts.push, q = sim.lifts.pull;
+    return (p.neural + p.size + q.neural + q.size) / 2;
+  }
+
+  /* Load is a percent of the lift's latest TESTED max. Percentages rebase at every retest. */
+  function analyze(liftPlan, trueIndex, testedMax) {
+    var units = liftPlan.load / 100 * testedMax;
+    var rel = units / trueIndex * 100;
+    var canLift = rel <= 103;                          // small tolerance after a deload test bonus
+    var relC = Math.min(rel, 100);
+    var rmax = canLift ? Math.max(1, rmaxAt(relC)) : 0;
+    var maxReps = canLift ? Math.max(1, Math.floor(rmax + 0.3)) : 0;
+    var fail = canLift && liftPlan.reps > maxReps;
+    var repsDone = canLift ? Math.min(liftPlan.reps, maxReps) : 0;
+    var rir = canLift ? (fail ? 0 : rmax - liftPlan.reps) : 0;
+    var P = !canLift ? 0 : (fail ? 1 : clamp(1 - Math.max(0, rir - 3) * 0.1, 0.25, 1));
+    return { units: units, rel: rel, canLift: canLift, rmax: rmax, maxReps: maxReps, fail: fail,
+             repsDone: repsDone, rir: rir, P: P };
+  }
+
+  function trained(lp) { return lp && lp.sets > 0 && lp.reps > 0 && lp.load > 0; }
+
+  function unhealed(sim) {
+    var ev = sim.event;
+    return ev ? clamp(1 - ev.progress / ev.need, 0, 1) : 0;
+  }
+
+  function restStatus(sim) {
+    var ev = sim.event;
+    if (!ev) return { key: 'recovered', healed: true, unhealed: 0 };
+    var u = unhealed(sim);
+    var key = u < 0.4 ? 'nearly' : (u < 0.75 ? 'improving' : 'early');
+    return { key: key, healed: false, unhealed: u };
+  }
+
+  function stepWeek(sim, plan, blockIndex) {
+    var w = ++sim.week;
+    var wInBlock = ((w - 1) % CFG.weeksPerBlock) + 1;
+    var e = { week: w, block: blockIndex, plan: copy(plan), lifts: {}, weekInBlock: wInBlock };
+    sim.pending = false;
+
+    /* ----- rest week ----- */
+    if (sim.rest) {
+      sim.rest.done++;
+      if (sim.event) {
+        sim.event.progress += 1 * sim.traits.recovery;
+        if (sim.event.progress >= sim.event.need) closeEvent(sim, w);
+      }
+      sim.F *= 0.55; sim.C *= 0.62;
+      sim.T = Math.max(0, sim.T - 20);
+      sim.chronic *= 0.88;
+      LIFTS.forEach(function (l) {
+        var s = sim.lifts[l];
+        s.neural *= 0.985; s.size *= 0.99; s.own *= 0.98; s.anaer *= 0.95; s.acc *= 0.8;
+      });
+      e.resting = true; e.restStatus = restStatus(sim);
+      e.restDone = sim.rest.done; e.restPlanned = sim.rest.planned;
+      if (sim.rest.done >= sim.rest.planned) sim.rest = null;
+      sim.lastDeload = false;
+      e.soreness = clamp(Math.round(1 + sim.T / 30), 1, 5);
+      finish(sim, e, 0, 0, 0);
+      return e;
+    }
+
+    var deload = !!plan.deload && wInBlock === CFG.weeksPerBlock;
+    e.deload = deload;
+    var sessions = plan.sessions, recKey = recovOf(plan);
+    var sleepRec = SLEEP_REC[recKey], fuelRec = FUEL_REC[plan.fuel];
+    var dayCredit = clamp(1 + 0.04 * ((7 - sessions) - 3.5), 0.9, 1.12);   // more days off clear fatigue and soreness faster
+    var F0 = sim.F, sore0 = sim.lastSore || 1;
+    var C0 = sim.C;
+    var u = unhealed(sim);
+    var injMult = sim.event ? 1 - CFG.event.gainPen[sim.event.severity] * u : 1;
+    // shared adaptive capacity: the three lifts draw on one finite reserve
+    var before = copy(sim.lifts), totalBefore = totalGain(sim);
+    var capF = clamp((CFG.capacity - totalBefore) / CFG.capacitySoft, 0, 1);
+    injMult *= capF;
+    e.capacityFactor = capF;
+    var freq = FREQ[sessions] || 0;
+    var sleepGain = SLEEP_GAIN[recKey], sleepSize = SLEEP_SIZE[recKey];
+
+    var totalVol = 0, a = {}, vols = {};
+    LIFTS.forEach(function (l) {
+      var lp = plan.lifts[l];
+      if (!trained(lp)) { vols[l] = 0; return; }
+      var sets = deload ? Math.ceil(lp.sets / 2) : lp.sets;
+      vols[l] = sets * sessions;
+      totalVol += vols[l];
+      a[l] = analyze(lp, index(sim, l), sim.max[l]);
+    });
+    // Good recovery cannot make up for a heavy workload: its advantage over typical recovery shrinks as high-load sets
+    // and total weekly volume rise. Poor recovery keeps its full penalty.
+    var heavySets = 0;
+    LIFTS.forEach(function (l) { var lp = plan.lifts[l]; if (vols[l]) heavySets += vols[l] * (lp.load >= 80 ? 1 : (lp.load >= 65 ? 0.5 : 0)); });
+    var demand = clamp(Math.max((totalVol - 36) / 36, (heavySets - 20) / 22), 0, 1);
+    e.recoveryDemand = demand;
+    if (recKey === 'good') {
+      var keep = 1 - demand;
+      sleepRec = SLEEP_REC.adequate + (SLEEP_REC.good - SLEEP_REC.adequate) * keep;
+      sleepGain = SLEEP_GAIN.adequate + (SLEEP_GAIN.good - SLEEP_GAIN.adequate) * keep;
+      sleepSize = SLEEP_SIZE.adequate + (SLEEP_SIZE.good - SLEEP_SIZE.adequate) * keep;
+    }
+    var fuelG = plan.fuel === 'low' ? clamp(0.85 - 0.006 * totalVol, 0.35, 0.85) : (plan.fuel === 'high' ? 1.02 : 1);
+    var recov = fuelG * sleepGain;
+    var sGain = strengthGain(sim);
+    var fade = clamp(1 - sGain / 45, 0.35, 1);
+
+    var direct = { push: 0, pull: 0, explosive: 0 };
+    var cin = 0, fin = 0, TL = 0, dFail = 0, finN = 0, TLn = 0;   // N = nominal, without the failure multiplier
+    var changedSum = 0, trainedN = 0, accSum = 0, sessHard = 0;
+
+    LIFTS.forEach(function (l) {
+      var lp = plan.lifts[l], s = sim.lifts[l], x = a[l];
+      var rest = restOf(plan, lp);
+      var le = { trained: !!x };
+      e.lifts[l] = le;
+      if (!x) { s.acc *= 0.9; return; }
+      var vol = vols[l];
+      var FeL = fatL({ F: F0, C: C0 }, l), ready = readyOf(FeL);
+
+      // variation / accommodation, per lift. 'Unchanged' is judged on the absolute load in units.
+      var changedL = 0, PL = CFG.plateau;
+      if (s.prev) {
+        var pv = s.prev.sets * s.prev.sessions;
+        var same = Math.abs(x.units - s.prev.units) <= PL.units &&
+                   Math.abs(vol - pv) / pv <= PL.volume &&
+                   Math.abs(lp.reps - s.prev.reps) <= PL.reps &&
+                   (l !== 'explosive' || Math.abs(intentPct(lp) - intentPct(s.prev)) < 10);
+        if (!deload) { s.acc = same ? Math.min(1, s.acc + PL.rate) : s.acc * 0.3; changedL = same ? 0 : 1; }
+      } else if (!deload) changedL = 1;
+      if (!deload) s.prev = { load: lp.load, units: x.units, reps: lp.reps, sets: lp.sets, sessions: sessions, intent: lp.intent };
+      else s.acc *= 0.85;
+      changedSum += changedL; trainedN++; accSum += s.acc;
+      var nov = 1 - PL.weight * s.acc;
+      var W = vol * x.P;
+      le.rel = x.rel; le.units = x.units; le.fail = x.fail; le.canLift = x.canLift; le.rir = x.rir; le.vol = vol;
+
+      if (l === 'explosive') {
+        var r = x.rel;
+        var loadE = !x.canLift ? 0 : (r < 30 ? 0.6 + 0.4 * (r - 20) / 10 : (r <= 60 ? 1 : (r <= 90 ? 1 - 0.65 * (r - 60) / 30 : 0.3)));
+        loadE = clamp(loadE, 0.3, 1) * (x.canLift ? 1 : 0);
+        var intentE = speedOf(lp, l);
+        var repsE = x.repsDone <= 5 ? 1 : (x.repsDone <= 8 ? 0.7 : 0.45);
+        var qualE = x.fail ? 0.35 : (x.rir < 2 ? 0.6 : (x.rir < 4 ? 0.85 : 1));
+        var restE = rest <= 3 ? pw(REST_E, rest) : 1 + restBonus(rest, x, lp.sets);
+        var doseE = 1 - Math.exp(-(Math.min(deload ? Math.ceil(lp.sets / 2) : lp.sets, TOSS_SETS) * sessions) / 11);
+        var capE = CFG.explosiveCapBase + CFG.explosiveCapPerStrength * sGain;
+        var headE = Math.max(0.05, 1 - Math.pow(s.own / capE, 2));
+        var m = { load: loadE, intent: intentE, reps: repsE, quality: qualE, rest: restE, dose: doseE, freq: freq,
+                  recovery: recov, novelty: nov, headroom: headE, readiness: Math.pow(ready, 1.5) };
+        var g = CFG.GE * injMult;
+        for (var k in m) g *= m[k];
+        s.own += g; direct.explosive = g;
+        le.mult = m; le.gain = { own: g };
+      } else {
+        var inten = x.canLift ? 0.12 + 0.88 * Math.pow(clamp((x.rel - 50) / 35, 0, 1), 1.2) : 0;
+        var repsN = x.repsDone <= 5 ? 1 : (x.repsDone <= 8 ? 0.85 : 0.65);
+        var dose = 1 - Math.exp(-W / 13);
+        var restF = 1 - (3 - Math.min(rest, 3)) * 0.1 * (x.rel >= 75 ? 1 : 0.5);
+        if (l === 'pull') restF += restBonus(rest, x, lp.sets);
+        var capN = CFG.neuralCapBase + CFG.neuralCapPerSize * s.size;
+        var headN = Math.max(0.05, 1 - Math.pow(s.neural / capN, 2));
+        var mN = { intensity: inten, reps: repsN, dose: dose, freq: freq, rest: restF, recovery: recov,
+                   novelty: nov, headroom: headN, readiness: ready };
+        var gN = CFG.GN * injMult;
+        for (var k2 in mN) gN *= mN[k2];
+
+        var repsS = x.repsDone <= 2 ? 0.3 : (x.repsDone <= 5 ? 0.6 : 1);
+        var loadS = x.canLift ? clamp((x.rel - 30) / 30, 0.2, 1) : 0;
+        var doseS = 1 - Math.exp(-W / 12);
+        var headS = Math.max(0.1, 1 - s.size / CFG.sizeCap);
+        var gS = CFG.GS * repsS * loadS * doseS * FUEL_SIZE[plan.fuel] * sleepSize * headS * ready * injMult;
+
+        var gA = 0;
+        if (l === 'push') {
+          var repsA = x.repsDone >= 8 ? 1 : (x.repsDone >= 6 ? 0.75 : (x.repsDone >= 4 ? 0.35 : 0.1));
+          var restA = pw(REST_A, rest);
+          var loadA = pw([[30, 0.4], [50, 1], [75, 1], [90, 0.5], [100, 0.3]], x.rel);
+          var proxA = x.fail ? 1 : pw([[0, 1], [2, 1], [4, 0.75], [8, 0.4]], x.rir);
+          var doseA = 1 - Math.exp(-W / 10);
+          var headA = Math.max(0, 1 - s.anaer / CFG.anaerCap);
+          gA = CFG.GA * repsA * restA * loadA * proxA * doseA * recov * headA * ready * injMult;
+          s.anaer += gA;
+        }
+        s.neural += gN; s.size += gS;
+        direct[l] = gN + gS;
+        le.mult = mN; le.gain = { neural: gN, size: gS, anaer: gA };
+      }
+
+      // pooled fatigue and tissue load
+      var effort = x.canLift ? 0.35 + 0.65 * x.P : 0.8;
+      sessHard += (deload ? Math.ceil(lp.sets / 2) : lp.sets) * effort;
+      // quality of the work, from the state the rhino starts the week in
+      var qReady = clamp(1 - Math.max(0, CFG.rdyK * FeL - 15) / 70, 0.2, 1);
+      var qSore = 1 - 0.07 * (sore0 - 1);
+      var qProx = !x.canLift ? 0.2 : (x.fail ? 0.35 : (x.rir < 1 ? 0.6 : (x.rir < 2 ? 0.75 : (x.rir < 3 ? 0.9 : 1))));
+      var qInt = l === 'explosive' ? 0.45 + 0.55 * speedOf(lp, l) : 1;
+      le.quality = qReady * qSore * qProx * qRest(rest, x, lp, l) * qInt * qSets(lp, l);
+      var failMult = (x.fail || !x.canLift) ? 1.25 : 1;
+      var relCap = Math.min(x.rel, 110) / 100;
+      var fl = vol * effort * (0.6 + 0.8 * relCap) * (1 + (3 - Math.min(rest, 3)) * 0.1);
+      var tl = vol * Math.pow(relCap, 1.5) * (1 + 0.04 * Math.min(lp.reps, 12));
+      var cdem = l === 'explosive' ? clamp(0.2 + 0.6 * speedOf(lp, l) + (x.rel > 70 ? 0.2 : 0), 0, 1) : clamp((x.rel - 65) / 25, 0, 1) * 1.4 * (x.fail ? 1.2 : 1);
+      cin += fl * failMult * cdem;
+      fin += fl * failMult; finN += fl;
+      TL += tl * failMult; TLn += tl;
+      dFail += (x.fail ? 3 : 0) + (x.canLift ? 0 : 18);
+    });
+
+    // spillover, computed from direct gains only
+    var ex = sim.lifts.explosive, pu = sim.lifts.push, pl = sim.lifts.pull;
+    // Strength carries over to the toss for about one block after the toss was last trained (the baseline test counts),
+    // then fades fast: strength alone cannot keep improving a skill that is no longer practiced.
+    sim.idleToss = a.explosive ? 0 : (sim.idleToss || 0) + 1;
+    var tossMult = sim.idleToss <= CFG.spillGraceWeeks ? 1 : Math.pow(0.5, (sim.idleToss - CFG.spillGraceWeeks) / CFG.spillHalfWeeks);
+    e.tossCarry = tossMult;
+    var spE = CFG.spillToExplosive * (direct.push + direct.pull) / 2 * fade * tossMult;
+    spE = Math.min(spE, Math.max(0, CFG.spillExplosiveCap - ex.spill));
+    ex.spill += spE;
+    var spPush = (CFG.spillBetweenStrength * direct.pull + CFG.spillFromExplosive * direct.explosive) * fade;
+    var spPull = (CFG.spillBetweenStrength * direct.push + CFG.spillFromExplosive * direct.explosive) * fade;
+    spPush = Math.min(spPush, Math.max(0, CFG.spillStrengthCap - pu.spill));
+    spPull = Math.min(spPull, Math.max(0, CFG.spillStrengthCap - pl.spill));
+    pu.spill += spPush; pl.spill += spPull;
+    e.lifts.explosive.spill = spE; e.lifts.push.spill = spPush; e.lifts.pull.spill = spPull;
+
+    // hard limit, so the total can never pass the capacity
+    var delta = totalGain(sim) - totalBefore, allowed = Math.max(0, CFG.capacity - totalBefore);
+    if (delta > allowed && delta > 0) {
+      var k3 = allowed / delta;
+      LIFTS.forEach(function (l) {
+        PARTS.forEach(function (c) { sim.lifts[l][c] = before[l][c] + (sim.lifts[l][c] - before[l][c]) * k3; });
+        var g2 = e.lifts[l].gain;
+        if (g2) for (var c2 in g2) g2[c2] *= k3;
+        if (e.lifts[l].spill) e.lifts[l].spill *= k3;
+      });
+    }
+    e.totalGain = totalGain(sim);
+
+    sim.totalSets += totalVol;
+    var dens = 1 + CFG.densityK * Math.max(0, sessHard - CFG.densityFree);   // many hard sets in one session cost extra
+    fin *= CFG.fatigueScale * dens; finN *= CFG.fatigueScale * dens; cin *= CFG.fatigueScale * dens;
+
+    // fatigue (hidden)
+    var rec = clamp(0.52 * sleepRec * fuelRec * sim.traits.recovery * dayCredit, 0.15, 0.8);
+    sim.F = clamp(sim.F * (1 - rec) + fin * 0.9, 0, 100);
+    // central fatigue clears more slowly, and fueling does not speed it up
+    var recC = clamp(CFG.recCk * sleepRec * sim.traits.recovery * dayCredit, 0.08, 0.45);
+    sim.C = clamp(sim.C * (1 - recC) + cin * 0.9, 0, 100);
+    // a deload clears fatigue; the fatigue it cleared is what the test bonus is paid on (small after an easy block, larger after hard ones)
+    if (deload) { sim.deloadFat = 0.5 * sim.F + 0.5 * sim.C; sim.F *= 0.75; sim.C *= 0.45; }
+
+    // tissue stress (hidden)
+    var acwr = TL / Math.max(8, sim.chronic);
+    var dSpike = acwr > 1.3 ? (acwr - 1.3) * 60 / sim.traits.toughness : 0;
+    var dVol = TL > 62 ? (TL - 62) * 0.8 / sim.traits.toughness : 0;
+    var dFat = sim.F > 60 ? (sim.F - 60) * 0.5 : 0;
+    var heal = 9 * sleepRec * fuelRec * dayCredit * (deload ? 1.6 : 1);
+    sim.T = Math.max(0, sim.T - heal) + dSpike + dVol + dFat + dFail;
+    sim.chronic += 0.25 * (TL - sim.chronic);
+    e.parts = { spike: dSpike, volume: dVol, fatigue: dFat, failure: dFail };
+    sim.fatHigh = sim.F > CFG.overtrainF ? sim.fatHigh + 1 : 0;
+
+    /* ----- events ----- */
+    if (sim.event) {
+      var ev = sim.event;
+      var q = ev.type === 'injury' ? TLn / Math.max(1, ev.TLref) : finN / Math.max(1, ev.finRef);
+      var rate;
+      if (q >= 0.9) rate = -0.25;
+      else if (q >= 0.8) rate = 0;
+      else rate = (q <= 0.35 ? 0.7 : 0.7 * (0.8 - q) / 0.45) * CFG.event.healMult[ev.severity] * sim.traits.recovery;
+      ev.progress = Math.max(0, ev.progress + rate);
+      e.eventLoadRatio = q;
+      if (q >= 0.9) {
+        ev.aggWeeks++;
+        if (ev.aggWeeks >= 2 && ev.severity !== 'severe') {
+          ev.severity = SEV[SEV.indexOf(ev.severity) + 1];
+          ev.need = CFG.event.need[ev.severity];
+          ev.aggWeeks = 0; ev.aggravated = (ev.aggravated || 0) + 1;
+          e.aggravated = ev.severity;
+          sim.pending = true;
+        }
+      }
+      sim.T = Math.min(sim.T, 99);
+      if (ev.progress >= ev.need) closeEvent(sim, w);
+    } else if (sim.T >= 100) {
+      var best = 'spike', bv = dSpike;
+      if (dVol > bv) { best = 'volume'; bv = dVol; }
+      if (dFat > bv) { best = 'fatigue'; bv = dFat; }
+      if (dFail > bv) { best = 'failure'; bv = dFail; }
+      var sc = Math.min(1.2, (sim.T - 100) / 50) + Math.max(0, acwr - 1.3) / 2 + Math.max(0, sim.F - 50) / 50;
+      openEvent(sim, 'injury', sc < 1.2 ? 'mild' : (sc < 2.5 ? 'moderate' : 'severe'), w, best, TLn, finN, acwr);
+      e.event = 'injury';
+    } else if (sim.fatHigh >= 2) {
+      var so = (sim.F - CFG.overtrainF) / 10;
+      openEvent(sim, 'overtraining', so < 0.6 ? 'mild' : (so < 1.2 ? 'moderate' : 'severe'), w, 'fatigue', TLn, finN, acwr);
+      sim.fatHigh = 0;
+      e.event = 'overtraining';
+    }
+
+    sim.lastDeload = deload;
+    // soreness: novelty (jump against the recent average, new stimulus), hard sets packed into a session,
+    // fading as the same plan repeats
+    var nov2 = clamp((acwr - 1) / 0.9, 0, 1);
+    var chg = trainedN ? changedSum / trainedN : 0, accAvg = trainedN ? accSum / trainedN : 0;
+    var raw = (0.45 * clamp((sessHard - 3) / 9, 0, 1) + 0.4 * nov2 + 0.25 * chg) * (1 - 0.6 * accAvg) * SORE_REC[recKey];
+    e.soreness = clamp(Math.round(1 + 4 * clamp(raw, 0, 1)), 1, 5);
+    e.sessHard = sessHard;
+    finish(sim, e, TL, acwr, fin);
+    return e;
+  }
+
+  function openEvent(sim, type, severity, w, cause, TL, fin, acwr) {
+    sim.event = { type: type, severity: severity, startSeverity: severity, week: w, cause: cause,
+                  need: CFG.event.need[severity], progress: 0, TLref: TL, finRef: fin, acwr: acwr,
+                  aggWeeks: 0, decisions: [], healedWeek: null };
+    sim.events.push(sim.event);
+    sim.pending = true;
+  }
+  function closeEvent(sim, w) {
+    var ev = sim.event;
+    ev.healedWeek = w;
+    if (ev.type === 'injury') sim.T = Math.min(sim.T, 30); else { sim.F = Math.min(sim.F, 40); sim.C = Math.min(sim.C, 40); }
+    sim.event = null; sim.pending = false;
+  }
+  function finish(sim, e, TL, acwr, fin) {
+    var blend = CFG.blendK * Math.max(sim.F, sim.C) + (REC_PEN[recovOf(e.plan)] || 0) + (FUEL_PEN[e.plan.fuel] || 0);
+    e.energy = clamp(Math.round(5 - 4 * clamp((blend - 12) / 55, 0, 1)), 1, 5);
+    sim.lastSore = e.soreness; sim.lastEnergy = e.energy;
+    e.TL = TL; e.acwr = acwr; e.fin = fin; e.F = sim.F; e.C = sim.C; e.T = sim.T;
+    e.index = { push: index(sim, 'push'), pull: index(sim, 'pull'), explosive: index(sim, 'explosive') };
+    e.parts2 = copy(sim.lifts);
+    e.eventActive = sim.event ? { type: sim.event.type, severity: sim.event.severity, unhealed: unhealed(sim) } : null;
+    e.pending = sim.pending;
+    sim.log.push(e);
+  }
+
+  /* The student's decision after an event: continue, modify, or rest 1 to 4 weeks. */
+  function decide(sim, choice) {
+    if (!sim.event) return;
+    var c = { week: sim.week, kind: choice.kind, weeks: choice.weeks || 0, severity: sim.event.severity };
+    sim.event.decisions.push(c);
+    sim.pending = false;
+    if (choice.kind === 'rest') sim.rest = { planned: clamp(choice.weeks || 1, 1, 4), done: 0 };
+  }
+  function resume(sim) {
+    if (sim.rest) {
+      if (sim.event) sim.event.resumedEarly = true;
+      sim.rest = null;
+    }
+  }
+
+  /* Progress: percent of the way to the goal. 50 at the baseline index, 100 at the goal index. */
+  function progressOf(l, v) { return clamp(50 + 50 * (v - CFG.start) / (CFG.goals[l] - CFG.start), 0, 100); }
+
+  /* Tests. Each test also rebases the percentages to the new tested max and updates the personal bests. */
+  function testAll(sim) {
+    var slip = clamp((CFG.slipK * (0.5 * sim.F + 0.5 * sim.C) - CFG.slipOff) * 0.003, 0, 0.15);
+    var bonus = sim.lastDeload ? CFG.deloadBonusMax * clamp((sim.deloadFat - CFG.dlOff) / CFG.dlSpan, 0, 1) : 0;
+    var pen = sim.event ? CFG.event.testPen[sim.event.severity] * unhealed(sim) : 0;
+    var out = { week: sim.week, F: sim.F, C: sim.C, slip: slip, bonus: bonus, pen: pen, lifts: {}, goalsNow: 0, goalsBest: 0 };
+    LIFTS.forEach(function (l) {
+      var sl = clamp((CFG.slipK * fatL(sim, l) - CFG.slipOff) * 0.003, 0, 0.15);
+      var s = l === 'explosive' ? Math.min(0.2, sl * 1.4) : sl;
+      var v = index(sim, l) * (1 - s) * (1 + bonus * (0.5 + 0.8 * CW[l])) * (1 - pen);
+      var pr = progressOf(l, v), prevBest = sim.best[l];
+      out.lifts[l] = { tested: v, true: index(sim, l), prevMax: sim.max[l], progress: pr,
+                       prevBest: prevBest, newPR: pr > prevBest + 0.05, reached: pr >= 100 };
+      if (pr > sim.best[l]) sim.best[l] = pr;
+      sim.max[l] = v;
+      if (pr >= 100) out.goalsNow++;
+      if (sim.best[l] >= 100) out.goalsBest++;
+    });
+    sim.tests.push(out);
+    return out;
+  }
+
+  /* Rep-by-rep quality of one demonstration set, from the rhino's state now. Quality falls as the set nears failure. */
+  function repQualities(sim, plan, l) {
+    var lp = plan.lifts[l];
+    if (!trained(lp)) return null;
+    var x = analyze(lp, index(sim, l), sim.max[l]);
+    var rest = restOf(plan, lp);
+    var qReady = clamp(1 - Math.max(0, CFG.rdyK * fatL(sim, l) - 15) / 70, 0.2, 1);
+    var qSore = 1 - 0.07 * ((sim.lastSore || 1) - 1);
+    var qInt = l === 'explosive' ? 0.45 + 0.55 * speedOf(lp, l) : 1;
+    var base = qReady * qSore * qRest(rest, x, lp, l) * qInt * qSets(lp, l);
+    var reps = [], maxR = x.canLift ? x.maxReps : 0;
+    for (var k = 1; k <= lp.reps; k++) {
+      if (k > maxR) { reps.push({ q: 0, missed: true }); break; }
+      reps.push({ q: base * (1 - 0.45 * Math.pow(k / maxR, 2)), missed: false });
+    }
+    return { reps: reps, planned: lp.reps, maxReps: maxR, canLift: x.canLift, fail: !x.canLift || x.fail,
+             units: x.units, rel: x.rel, base: base };
+  }
+
+  /* Run driver, used by the tests, the what-if replay and (later) the page. */
+  function scalePlan(plan, scale, loadDrop) {
+    var p = copy(plan);
+    LIFTS.forEach(function (l) {
+      var lp = p.lifts[l];
+      if (!trained(lp)) return;
+      lp.sets = Math.max(1, Math.round(lp.sets * scale));
+      lp.load = Math.max(CFG.loadRange[0], lp.load - (loadDrop || 0));
+    });
+    return p;
+  }
+  function defaultPolicy(ev) {
+    if (ev.severity === 'mild') return { kind: 'modify', scale: 0.5, loadDrop: 10 };
+    if (ev.severity === 'moderate') return { kind: 'rest', weeks: 2, graded: true };
+    return { kind: 'rest', weeks: 4, graded: true };
+  }
+  function simulateRun(plans, policy, opts) {
+    policy = policy || defaultPolicy;
+    var sim = newSim(opts);
+    var tests = [testAll(sim)];
+    for (var b = 0; b < CFG.blocks; b++) {
+      var mod = null, ret = null, early = false;      // a modified plan lasts until the next block is planned
+      for (var i = 0; i < CFG.weeksPerBlock; i++) {
+        var plan = plans[b];
+        if (mod && !sim.event) { ret = { scale: mod.returnScale, loadDrop: 0 }; mod = null; }   // healed: step back up
+        if (mod) plan = scalePlan(plan, mod.scale, mod.loadDrop);
+        else if (ret && !sim.rest) plan = scalePlan(plan, ret.scale, ret.loadDrop);
+        var e = stepWeek(sim, plan, b);
+        if (e.resting && policyEarly(early, sim)) resume(sim);
+        if (sim.pending) {
+          var c = policy(sim.event, sim) || { kind: 'continue' };
+          decide(sim, c);
+          mod = c.kind === 'modify' ? { scale: c.scale || 0.5, loadDrop: c.loadDrop == null ? 10 : c.loadDrop, returnScale: c.returnScale || 0.8 } : null;
+          ret = c.kind === 'rest' ? { scale: c.returnScale || (c.graded ? 0.8 : 1), loadDrop: 0 } : null;
+          early = c.kind === 'rest' && c.early !== false;
+        }
+      }
+      tests.push(testAll(sim));
+    }
+    return { sim: sim, tests: tests, final: tests[tests.length - 1] };
+  }
+  function policyEarly(early, sim) { return early && sim.rest && !sim.event; }
+
+  /* Score out of 100. Efficiency only counts in proportion to what was achieved, so it cannot saturate on a lazy plan. */
+  function decisionQuality(ev) {
+    if (!ev.decisions.length) return 0;
+    var best = 0, hadContinue = false;
+    ev.decisions.forEach(function (d) {
+      var q = 0;
+      if (d.kind === 'continue') { hadContinue = true; q = 0; }
+      else if (d.severity === 'mild') q = d.kind === 'modify' ? 10 : 6;
+      else if (d.severity === 'moderate') q = d.kind === 'rest' ? (d.weeks >= 2 ? 10 : 6) : 7;
+      else q = d.kind === 'rest' ? (d.weeks >= 3 ? 10 : 5) : 3;
+      best = Math.max(best, q);
+    });
+    if (hadContinue) best = Math.min(best, 4);
+    if (ev.resumedEarly && ev.aggravated) best = Math.min(best, 5);
+    return best;
+  }
+  function scoreRun(run) {
+    var sim = run.sim, fin = run.final;   // the score reflects the last test, not the best one
+    var prog = 0, goalCredit = 0, goals = 0, gains = [];
+    LIFTS.forEach(function (l) {
+      var p = fin.lifts[l].progress;
+      prog += clamp((p - 50) / 50, 0, 1) / LIFTS.length;
+      goalCredit += p >= 100 ? 1 : 0.7 * clamp((p - 88) / 12, 0, 1);   // near misses earn most of the credit, reaching the goal the rest
+      if (p >= 100) goals++;
+      gains.push(fin.lifts[l].tested - CFG.start);
+    });
+    var progress = 50 * Math.pow(prog, 0.7);             // progress toward the three goals
+    var goalPts = Math.min(10, 5 * goalCredit);          // partial credit for near misses, at most two goals' worth
+    var total = gains.reduce(function (a2, b2) { return a2 + b2; }, 0);
+    var mx = Math.max.apply(null, gains), mn = Math.min.apply(null, gains);
+    var balance = mx > 0 ? clamp(mn / mx, 0, 1) * 5 : 0;
+    var per100 = sim.totalSets > 0 ? total / (sim.totalSets / 100) : 0;
+    var eff = 10 * Math.sqrt(clamp(total / 60, 0, 1)) * clamp(per100 / 14, 0, 1);
+    var health = 15, decisions = 10;
+    if (sim.events.length) {
+      var pen = 0, dq = 0;
+      sim.events.forEach(function (ev) {
+        pen += { mild: 5, moderate: 9, severe: 15 }[ev.severity];
+        dq += decisionQuality(ev);
+      });
+      health = Math.max(0, 15 - pen);
+      decisions = dq / sim.events.length;
+    }
+    var r1 = function (x) { return Math.round(x * 10) / 10; };
+    var tot = Math.round(progress + goalPts + balance + eff + health + decisions);
+    var band = tot >= 90 ? 'Excellent' : (tot >= 80 ? 'Good' : (tot >= 70 ? 'Fair' : (tot >= 55 ? 'Developing' : 'Needs a rethink')));
+    return { progress: r1(progress), goals: r1(goalPts), goalsReached: goals, goalsBest: fin.goalsBest, balance: r1(balance), efficiency: r1(eff),
+             health: r1(health), decisions: r1(decisions), total: tot, band: band, totalGain: total, per100: per100 };
+  }
+
+  /* What-if replay: re-run the plan with one change at a time. */
+  function whatIf(plans, policy, opts) {
+    var base = simulateRun(plans, policy, opts);
+    var sum = function (r) { return LIFTS.reduce(function (n, l) { return n + r.final.lifts[l].tested; }, 0); };
+    var b0 = sum(base);
+    var vars = [];
+    function add(label, fn) {
+      var p = copy(plans); p.forEach(fn);
+      if (JSON.stringify(p) === JSON.stringify(plans)) return;
+      var r = simulateRun(p, policy, opts);
+      var d = {}; LIFTS.forEach(function (l) { d[l] = r.final.lifts[l].tested - base.final.lifts[l].tested; });
+      vars.push({ label: label, delta: sum(r) - b0, byLift: d, events: r.sim.events.length });
+    }
+    add('Rest 3 minutes between sets', function (p) { p.rest = 3; LIFTS.forEach(function (l) { if (trained(p.lifts[l])) p.lifts[l].rest = 3; }); });
+    add('Good recovery in every block', function (p) { p.recovery = 'good'; p.sleep = 'good'; });
+    add('Adequate fueling in every block', function (p) { if (p.fuel === 'low') p.fuel = 'adequate'; });
+    add('High fueling in every block', function (p) { p.fuel = 'high'; });
+    add('Maximal speed intent on the tire toss', function (p) { if (trained(p.lifts.explosive)) p.lifts.explosive.intent = 100; });
+    add('A deload week before the final test', function (p, i) { if (i === 2) p.deload = true; });
+    add('One more session per week', function (p) { p.sessions = Math.min(7, p.sessions + 1); });
+    add('One less session per week', function (p) { p.sessions = Math.max(1, p.sessions - 1); });
+    LIFTS.forEach(function (l0) {
+      var l = l0, nm = l0 === 'explosive' ? 'toss' : l0;
+      add('One more set on the ' + nm + ' lift', function (p) { if (trained(p.lifts[l])) p.lifts[l].sets = Math.min(8, p.lifts[l].sets + 1); });
+      add('One less set on the ' + nm + ' lift', function (p) { if (trained(p.lifts[l])) p.lifts[l].sets = Math.max(1, p.lifts[l].sets - 1); });
+      add('Load 10 points higher on the ' + nm + ' lift', function (p) { if (trained(p.lifts[l])) p.lifts[l].load = Math.min(CFG.loadRange[1], p.lifts[l].load + 10); });
+      add('Load 10 points lower on the ' + nm + ' lift', function (p) { if (trained(p.lifts[l])) p.lifts[l].load = Math.max(CFG.loadRange[0], p.lifts[l].load - 10); });
+    });
+    vars.sort(function (x, y) { return y.delta - x.delta; });
+    return { base: base, variations: vars };
+  }
+
+  var api = { speedOf: speedOf, intentPct: intentPct, CFG: CFG, LIFTS: LIFTS, newSim: newSim, index: index, totalGain: totalGain, analyze: analyze, stepWeek: stepWeek,
+              decide: decide, resume: resume, restStatus: restStatus, testAll: testAll, progressOf: progressOf, repQualities: repQualities,
+              rmaxAt: rmaxAt, restOf: restOf, simulateRun: simulateRun, scalePlan: scalePlan,
+              defaultPolicy: defaultPolicy, scoreRun: scoreRun, decisionQuality: decisionQuality, strengthGain: strengthGain, whatIf: whatIf, copy: copy, clamp: clamp };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.RhinoEngine = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var E = window.RhinoEngine, CFG = E.CFG, LIFTS = E.LIFTS, clamp = E.clamp;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var CANCEL = { cancel: true };
+  var NAMES = { push: 'Push', pull: 'Pull', explosive: 'Toss' };
+  var TESTNAME = { push: 'boulder up the mound', pull: 'stump pull', explosive: 'tire toss over the river' };
+  var HELP = {
+    push: 'A monstrous boulder and a gradual slope. The rhino must empty the tank to reach the top of the mound.',
+    pull: 'This old stump has deep roots. It will take a mighty effort to yank it out of the earth.',
+    explosive: 'The hefty tire can’t be rolled to its final destination — the rhino must heave it over the river to the opposite bank.'
+  };
+  var RU_HELP = 'Rhino Units (RUs) measure force. Each lift starts with a tested max of 100 RUs, and training raises it. A load is a percent of the current max, so 85% of a 100 RU max is an 85 RU load. After a retest the max changes, and the same RUs become a different percent.';
+  var SRC_HELP = '<ul class="srchelp">' +
+    '<li><b>Muscle size.</b> Built by moderate loads with 6 or more reps and enough volume. It needs good fueling and recovery, builds slowly, and raises the ceiling for later strength.</li>' +
+    '<li><b>Nervous system adaptations.</b> Learning to use the muscle: heavy loads for 5 or fewer reps with full rest build strength. On the toss, light to moderate loads moved at maximal speed with crisp reps build power. These come fast early, then slow down.</li>' +
+    '<li><b>Work capacity.</b> The ability to keep producing force through many reps with short rests. Only the push builds it here: 8 or more reps, rest of a minute or less, and enough volume.</li>' +
+    '<li><b>Carryover from other lifts.</b> Strength gained in one lift helps the others. Push and pull carry over to the toss while the toss is being trained and for about a block afterward, then the effect fades. The toss helps push and pull only slightly.</li></ul>';
+  var KEY_RUNS = 'rhino-v3-base-runs';
+  function load(key, def) { try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; } catch (e) { return def; } }
+  function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+  var runs = load(KEY_RUNS, []); if (!Array.isArray(runs)) runs = [];
+  var st = null;
+  var SORE = ['Minimal', 'Mild', 'Moderate', 'High', 'Severe'];
+  var ENERGY = ['Drained', 'Low', 'Moderate', 'Good', 'High'];
+
+  function blankLift() { return { load: 0, reps: 0, sets: 0, rest: 0, intent: '' }; }
+  function blankPlan() {
+    return { lifts: { push: blankLift(), pull: blankLift(), explosive: blankLift() }, sessions: 0, fuel: '', recovery: '', deload: false };
+  }
+  function fresh() {
+    var old = st; document.body.classList.remove('training');
+    if (document.querySelector('#wkstrip')) { document.querySelector('#wkstrip').hidden = true; document.querySelector('.stagewrap').classList.remove('dim'); }
+    st = {
+      token: old ? old.token + 1 : 1, phase: 'intro', sim: E.newSim(), block: 0,
+      plans: [], modPlans: [], plan: blankPlan(), carry: {}, tests: [], outcomes: [], diary: [], decisions: [],
+      pos: { push: 0, pull: 0, explosive: 0 }, last: null,
+      busy: false, skip: false, runNo: runs.length + 1, nowWeek: 0, ask: null, resolver: null, demo: false
+    };
+  }
+  function fmtP(p) { return p >= 100 ? '100' : String(Math.min(99, Math.round(p))); }
+
+  /* ---------- timing ---------- */
+  function guard(tk) { if (tk !== st.token) throw CANCEL; }
+  function sleep(ms, tk) {
+    return new Promise(function (res, rej) {
+      setTimeout(function () { if (tk !== st.token) rej(CANCEL); else res(); }, (st.skip || reduce) ? 0 : ms);
+    });
+  }
+  function ease(t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+  function tween(ms, fn, tk) {
+    return new Promise(function (res, rej) {
+      if (tk !== st.token) { rej(CANCEL); return; }
+      if (st.skip || reduce || ms <= 0) { fn(1); res(); return; }
+      var t0 = performance.now();
+      function f(now) {
+        if (tk !== st.token) { rej(CANCEL); return; }
+        var p = Math.min(1, (now - t0) / ms);
+        if (st.skip) p = 1;
+        fn(p);
+        if (p < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+
+  /* ---------- scene ---------- */
+  var K = 0.6;
+  var PUSH_R = 28, STUMP_W = 44, STUMP_H = 36, TIRE_R = 19, RIVER = 140;
+  var X0 = 400, TIRE_X = 352, STUMP_X = 600, PULL_CX = 330, TOSS_CX = 190, XB_START = 326, XB_END = 655;
+  var R = { scene: 'push', cx: 150, head: 0, strain: 0, bob: 0, jx: 0, jy: 0, m: 0 };
+  var S = { lift: 'push' };
+  function gY(x) { return x <= 260 ? 262 : (x >= 665 ? 172 : 262 - (x - 260) * 90 / 405); }
+  function pushX(p) { return XB_START + (XB_END - XB_START) * clamp(p, 0, 100) / 100; }
+  function pullState(p) { return p >= 100 ? { tilt: 28, pop: 1 } : { tilt: 28 * Math.pow(Math.max(0, p) / 100, 1.4), pop: 0 }; }
+  function pullCx(p) { return PULL_CX - 0.7 * clamp(p, 0, 100); }
+  function landing(p) {
+    var x1 = X0 + RIVER, r = TIRE_R;
+    if (p >= 100) return { x: x1 + r + 14, where: 'far' };
+    if (p <= 50) { var xa = 372 + (X0 + 28 - 372) * Math.max(0, p) / 50; return { x: xa, where: xa < X0 + r * 0.5 ? 'near' : 'water' }; }
+    return { x: X0 + 28 + (x1 - r - 6 - (X0 + 28)) * (p - 50) / 50, where: 'water' };
+  }
+  function tireRest(p) {
+    var L = landing(p), r = TIRE_R;
+    return L.where === 'water' ? { x: L.x, y: 262 + r * 0.3, op: 0.6 } : (L.where === 'far' ? { x: L.x, y: 262 - r * 1.3, op: 1 } : { x: L.x, y: 262 - r * 1.3, op: 1 });
+  }
+  function legT(id, cx, s, extra) { $('#' + id).setAttribute('transform', 'translate(' + cx + ' 0) scale(' + s + ' 1) translate(' + (-cx) + ' 0)' + (extra || '')); }
+  function bulk() { return clamp(E.strengthGain(st.sim) / 24, 0, 1); }
+  function drawRhino() {
+    var sim = st.sim, m = R.m;
+    var ev = sim.event;
+    var slump = ((ev && ev.type === 'overtraining') || (st.last && st.last.energy <= 2)) ? 1 : 0;
+    var limp = !!(ev && ev.type === 'injury');
+    $('#rBodyG').setAttribute('transform', 'translate(235 170) scale(' + (1 + 0.06 * m).toFixed(3) + ' ' + (1 + 0.15 * m - 0.03 * slump).toFixed(3) + ') translate(-235 -170)');
+    var h = $('#rHump'); h.setAttribute('rx', (50 + 14 * m).toFixed(1)); h.setAttribute('ry', (38 + 13 * m).toFixed(1)); h.setAttribute('cy', (140 - 6 * m).toFixed(1));
+    $('#rDef').setAttribute('opacity', (m * 0.9).toFixed(2));
+    var s = 1 + 0.22 * m;
+    legT('legFarB', 214, s); legT('legFarF', 304, s); legT('legNearB', 164, s);
+    legT('legNearF', 334, s, limp ? ' rotate(-30 334 214) translate(0 -6)' : '');
+    $('#rHead').setAttribute('transform', 'rotate(' + (R.head + slump * 10).toFixed(1) + ' 335 150)');
+    $('#rTail').setAttribute('transform', 'rotate(' + (slump ? 18 : 0) + ' 122 148)');
+    $('#rRig').setAttribute('transform', 'translate(0 ' + (slump * 7 + R.bob).toFixed(1) + ')');
+    $('#rEye').style.display = R.strain ? 'none' : '';
+    $('#rSquint').style.display = R.strain ? '' : 'none';
+    var cx = R.cx + R.jx, t;
+    if (R.scene === 'push') {
+      var yr = gY(cx - 51), yf = gY(cx + 51), ang = Math.atan2(yf - yr, 102) * 180 / Math.PI;
+      t = 'translate(' + cx.toFixed(1) + ' ' + ((yr + yf) / 2 + R.jy).toFixed(1) + ') rotate(' + ang.toFixed(2) + ') scale(' + K + ') translate(-250 -262)';
+    } else {
+      t = 'translate(' + cx.toFixed(1) + ' ' + (262 + R.jy).toFixed(1) + ') scale(' + (R.scene === 'pull' ? -K : K) + ' ' + K + ') translate(-250 -262)';
+    }
+    $('#rhinoPos').setAttribute('transform', t);
+  }
+  function puff(x, y, r, cls) {
+    if (reduce || st.skip) return;
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1)); c.setAttribute('r', r);
+    c.setAttribute('class', 'puff ' + (cls || ''));
+    $('#fx').appendChild(c);
+    setTimeout(function () { if (c.parentNode) c.parentNode.removeChild(c); }, 750);
+  }
+  var lastPuff = 0;
+  function dust() {
+    var now = performance.now(); if (now - lastPuff < 140) return; lastPuff = now;
+    var dir = R.scene === 'pull' ? 1 : -1;
+    puff(R.cx + dir * (30 + Math.random() * 40), (R.scene === 'push' ? gY(R.cx) : 262) - 3, 5 + Math.random() * 4);
+  }
+  function breath() {
+    var dir = R.scene === 'pull' ? -1 : 1, x = R.cx + dir * 122, y = (R.scene === 'push' ? gY(R.cx + 51) : 262) - 46;
+    [0, 220, 440].forEach(function (d) { setTimeout(function () { puff(x + dir * 6, y, 5, 'breath'); }, d); });
+  }
+
+  function stumpHtml(w, h) {
+    var sw = Math.max(5, w / 6);
+    return '<path class="o-root" stroke-width="' + sw + '" d="M' + (-w / 2 + 3) + ',-2 C' + (-w / 2 - 8) + ',10 ' + (-w / 2 - 16) + ',20 ' + (-w / 2 - 26) + ',' + (h * 0.7) + '"/>' +
+      '<path class="o-root" stroke-width="' + sw + '" d="M0,-2 C2,12 -4,24 2,' + (h * 0.9) + '"/>' +
+      '<path class="o-root" stroke-width="' + sw + '" d="M' + (w / 2 - 3) + ',-2 C' + (w / 2 + 8) + ',10 ' + (w / 2 + 14) + ',22 ' + (w / 2 + 26) + ',' + (h * 0.75) + '"/>' +
+      '<rect class="o-bark" x="' + (-w / 2) + '" y="' + (-h) + '" width="' + w + '" height="' + (h + 2) + '" rx="4"/>' +
+      '<ellipse class="o-wood" cx="0" cy="' + (-h) + '" rx="' + (w / 2) + '" ry="' + Math.max(4, w / 8) + '"/>' +
+      '<ellipse class="o-ring" cx="0" cy="' + (-h) + '" rx="' + (w / 4) + '" ry="' + Math.max(2, w / 16) + '"/>';
+  }
+  function tireHtml(r) {
+    return '<circle r="' + r + '" fill="none" style="stroke:var(--tire)" stroke-width="' + (r * 0.6) + '"/>' +
+      '<circle r="' + (r * 1.22) + '" fill="none" style="stroke:var(--tire-hi)" stroke-width="2" stroke-dasharray="3 5"/>' +
+      '<circle r="' + (r * 0.5) + '" fill="none" style="stroke:var(--tire-hi)" stroke-width="2"/>';
+  }
+  function setBoulder(xb, spin) {
+    var r = PUSH_R, y = gY(xb) - r;
+    $('#boulder').setAttribute('transform', 'translate(' + xb.toFixed(1) + ' ' + y.toFixed(1) + ') scale(' + r + ')');
+    $('#boulderSpin').setAttribute('transform', 'rotate(' + (spin || 0).toFixed(1) + ')');
+    var sh = $('#bShadow'); sh.setAttribute('cx', xb.toFixed(1)); sh.setAttribute('cy', (gY(xb) + 2).toFixed(1)); sh.setAttribute('rx', r);
+    R.cx = xb - r - 128;
+  }
+  function stumpXf(tilt, pop) {
+    var w = STUMP_W, px = STUMP_X - w / 2, ang = -(tilt + 52 * pop), tx = -64 * pop, ty = -18 * Math.sin(Math.PI * pop) - 2 * pop;
+    return { tf: 'translate(' + tx.toFixed(1) + ' ' + ty.toFixed(1) + ') rotate(' + ang.toFixed(1) + ' ' + px + ' 262) translate(' + STUMP_X + ' 262)', ang: ang, tx: tx, ty: ty, px: px };
+  }
+  function setStump(tilt, pop) {
+    var w = STUMP_W, h = STUMP_H, x = stumpXf(tilt, pop);
+    $('#stump').setAttribute('transform', x.tf);
+    $('#hole').setAttribute('opacity', pop > 0.3 ? 0.9 : (tilt / 28 * 0.5).toFixed(2));
+    $('#hole').setAttribute('rx', w * 0.6);
+    var th = x.ang * Math.PI / 180, lx = w / 2, ly = -h;
+    var ex = x.px + lx * Math.cos(th) - ly * Math.sin(th) + x.tx, ey = 262 + lx * Math.sin(th) + ly * Math.cos(th) + x.ty;
+    var rp = $('#rope');
+    rp.setAttribute('x1', (R.cx - 22).toFixed(1)); rp.setAttribute('y1', '196');
+    rp.setAttribute('x2', ex.toFixed(1)); rp.setAttribute('y2', (ey + 6).toFixed(1));
+  }
+  function setTire(x, y, spin, op) {
+    var t = $('#tire');
+    t.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + (spin || 0).toFixed(1) + ')');
+    t.setAttribute('opacity', op == null ? 1 : op);
+  }
+  /* personal-best marker: only drawn when the rhino has slipped below its PR */
+  function prPill(x, y) {
+    return '<g style="pointer-events:none"><rect x="' + (x - 13).toFixed(1) + '" y="' + (y - 12).toFixed(1) + '" width="26" height="16" rx="8" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5"/><text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--ink)">PR</text></g>';
+  }
+  function drawGhost() {
+    var g = $('#ghost'), l = S.lift, cur = st.pos[l], best = st.gb ? st.gb[l] : st.sim.best[l];
+    g.innerHTML = ''; var prMark = '';
+    if (!st.tests.length || !(best > cur + 0.05)) return;
+    if (l === 'push') {
+      var x = pushX(best), y = gY(x); prMark = prPill(x, y - 2 * PUSH_R - 10);
+      g.innerHTML = '<circle cx="' + x.toFixed(1) + '" cy="' + (y - PUSH_R).toFixed(1) + '" r="' + PUSH_R + '" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-dasharray="5 4"/>' +
+        '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="' + (PUSH_R * 0.8) + '" ry="3" fill="none" style="stroke:var(--ink)" stroke-width="2" stroke-dasharray="4 3"/>';
+    } else if (l === 'pull') {
+      var ps = pullState(best), xf = stumpXf(ps.tilt, ps.pop);
+      var th = xf.ang * Math.PI / 180, dx = STUMP_W / 2 - 0, dy = -STUMP_H - 16;
+      var mx = xf.px + dx * Math.cos(th) - dy * Math.sin(th) + xf.tx, my = 262 + dx * Math.sin(th) + dy * Math.cos(th) + xf.ty;
+      g.innerHTML = '<g transform="' + xf.tf + '">' + stumpHtml(STUMP_W, STUMP_H) +
+        '<rect x="' + (-STUMP_W / 2 - 3) + '" y="' + (-STUMP_H - 3) + '" width="' + (STUMP_W + 6) + '" height="' + (STUMP_H + 6) + '" rx="6" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-dasharray="5 4"/></g>';
+      prMark = '<g style="pointer-events:none"><rect x="' + (mx - 13).toFixed(1) + '" y="' + (my - 12).toFixed(1) + '" width="26" height="16" rx="8" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5"/><text x="' + mx.toFixed(1) + '" y="' + (my).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--ink)">PR</text></g>';
+    } else {
+      var tr = tireRest(best); prMark = prPill(tr.x, tr.y - TIRE_R - 14);
+      g.innerHTML = '<g transform="translate(' + tr.x.toFixed(1) + ' ' + tr.y.toFixed(1) + ')">' + tireHtml(TIRE_R) + '</g>' +
+        (landing(best).where === 'water' ? '<ellipse cx="' + tr.x.toFixed(1) + '" cy="266" rx="22" ry="5" fill="none" style="stroke:var(--surface)" stroke-width="2"/>' : '');
+    }
+    g.innerHTML = '<g opacity=".42">' + g.innerHTML + '</g>' + prMark;
+  }
+  function setScene(lift) {
+    S.lift = lift; R.scene = lift; R.head = 0; R.jx = 0; R.jy = 0; R.bob = 0; R.strain = 0;
+    var p = st.pos[lift];
+    $('#sc-push').style.display = lift === 'push' ? '' : 'none';
+    $('#sc-pull').style.display = lift === 'pull' ? '' : 'none';
+    $('#sc-toss').style.display = lift === 'explosive' ? '' : 'none';
+    $('#rope').style.display = lift === 'pull' ? '' : 'none';
+    $('#rHarness').style.display = lift === 'pull' ? '' : 'none';
+    $('#tire').style.display = lift === 'explosive' ? '' : 'none';
+    $('#fx').innerHTML = '';
+    if (lift === 'push') { setBoulder(pushX(p), 0); }
+    else if (lift === 'pull') {
+      $('#stump').innerHTML = stumpHtml(STUMP_W, STUMP_H);
+      $('#mound').setAttribute('rx', STUMP_W * 0.8); $('#mound').style.display = '';
+      R.cx = pullCx(p);
+      var ps = pullState(p); setStump(ps.tilt, ps.pop);
+    } else {
+      ['water', 'water2'].forEach(function (id) { $('#' + id).setAttribute('width', RIVER); });
+      var rip = '';
+      for (var i = 0; i < 3; i++) { var x = X0 + 14 + i * (RIVER - 40) / 2.2, y = 276 + i * 14; rip += 'M' + x + ',' + y + ' q8,-4 16,0 '; }
+      $('#ripples').setAttribute('d', rip);
+      $('#flagT').setAttribute('transform', 'translate(' + (X0 + RIVER + 78 - 540) + ' 0)');
+      $('#tire').innerHTML = tireHtml(TIRE_R);
+      R.cx = TOSS_CX;
+      var tr = st.tests.length ? tireRest(p) : { x: TIRE_X, y: 262 - TIRE_R * 1.3, op: 1 };
+      setTire(tr.x, tr.y, 0, tr.op);
+    }
+    $('#scene').setAttribute('aria-label', 'The rhino at the ' + TESTNAME[lift] + '.');
+    drawGhost();
+    drawRhino();
+  }
+  function outcomeText(lift, p) {
+    if (lift === 'push') return p >= 100 ? 'Reaches the top of the mound' : (p < 5 ? 'Barely moves' : 'Stalls ' + fmtP(p) + '% of the way up the mound');
+    if (lift === 'pull') return p >= 100 ? 'Stump pulled out of the ground' : (p < 40 ? 'Stump does not budge' : (p < 60 ? 'Stump budges' : (p < 85 ? 'Stump shudders and tilts' : 'Roots are tearing loose')));
+    var L = landing(p);
+    return L.where === 'far' ? 'Clears the river' : (L.where === 'near' ? 'Lands on the near bank' : 'Splashes down in the river');
+  }
+
+  /* ---------- caption, reps, vitals ---------- */
+  function setCaption(html) { $('#caption').innerHTML = html; }
+  function liftTag(l) { return '<span class="lift-' + l + '"><span class="dot l"></span></span> '; }
+  function qStep(q) { return q >= 0.85 ? 5 : (q >= 0.7 ? 4 : (q >= 0.55 ? 3 : (q >= 0.4 ? 2 : 1))); }
+  function showReps(n) {
+    var box = $('#reps'), h = ''; box.className = 'reps';
+    for (var i = 0; i < n; i++) h += '<span class="rd" data-i="' + i + '" aria-label="Rep ' + (i + 1) + ', not yet done"></span>';
+    box.innerHTML = h + '<span class="rl">Rep quality: 5 best, 1 worst</span>';
+    box.hidden = false;
+  }
+  function markRep(i, rep) {
+    var el = $('#reps [data-i="' + i + '"]'); if (!el) return;
+    if (rep.missed) { el.className = 'rd miss'; el.textContent = '✕'; el.setAttribute('aria-label', 'Rep ' + (i + 1) + ', missed'); }
+    else { var s = qStep(rep.q); el.className = 'rd s' + s; el.textContent = s; el.setAttribute('aria-label', 'Rep ' + (i + 1) + ', quality ' + s + ' of 5'); }
+  }
+  function showWeekQuality(e) {
+    var box = $('#reps'), h = '';
+    LIFTS.forEach(function (l) {
+      var le = e.lifts[l]; if (!le || le.quality == null || !(le.vol > 0)) return;
+      var s = qStep(le.quality);
+      h += '<span class="wi"><span class="rd s' + s + '" aria-label="' + NAMES[l] + ' rep quality ' + s + ' of 5">' + s + '</span>' + NAMES[l] + '</span>';
+    });
+    if (!h) { hideReps(); return; }
+    box.className = 'reps wq'; box.innerHTML = h + '<span class="rl">Average rep quality this week: 5 best, 1 worst</span>'; box.hidden = false;
+  }
+  function hideReps() { $('#reps').className = 'reps'; $('#reps').hidden = true; $('#reps').innerHTML = ''; }
+  function scaleHtml(kind, n) {
+    var c = kind === 'sore' ? n : 6 - n, label = (kind === 'sore' ? SORE : ENERGY)[n - 1], pips = '';
+    for (var i = 1; i <= 5; i++) pips += '<i class="' + (i <= n ? 'on c' + c : '') + '"></i>';
+    return '<span class="sc"><span class="nm">' + (kind === 'sore' ? 'Soreness' : 'Energy') + '</span><span class="pips' + (kind === 'energy' ? ' batt' : ' dots') + '" aria-hidden="true">' + pips + '</span><b>' + n + '/5</b> ' + label + '</span>';
+  }
+  function pipsOnly(kind, n) {
+    var c = kind === 'sore' ? n : 6 - n, pips = '';
+    for (var i = 1; i <= 5; i++) pips += '<i class="' + (i <= n ? 'on c' + c : '') + '"></i>';
+    return '<span class="pips' + (kind === 'energy' ? ' batt' : ' dots') + '" aria-hidden="true">' + pips + '</span><b>' + n + '</b>';
+  }
+  function chg(kind, now, prev) {
+    if (prev == null || now === prev) return '<span class="chg">no change</span>';
+    var up = now > prev, bad = kind === 'sore' ? up : !up;
+    return '<span class="chg ' + (bad ? 'bad' : 'good') + '">' + (up ? '\u2191 ' : '\u2193 ') + Math.abs(now - prev) + '</span>';
+  }
+  async function showWeekSummary(startE, startS, rows, tk) {
+    var box = $('#wkstrip'), cols = [{ h: 'Start', e: startE, s: startS, tag: '' }];
+    rows.forEach(function (e) { cols.push({ h: 'Week ' + e.week, e: e.energy, s: e.soreness, tag: e.resting ? 'rest' : (e.deload ? 'deload' : '') }); });
+    $('.stagewrap').classList.add('dim'); $('#vitals').hidden = true; hideReps();
+    setCaption('Training block complete.<small>How the rhino felt, week by week</small>');
+    box.hidden = false;
+    var h = '<div class="wk-grid" style="--n:' + cols.length + '"><span></span>';
+    cols.forEach(function (c) { h += '<span class="wk-h">' + c.h + (c.tag ? '<small>' + c.tag + '</small>' : '') + '</span>'; });
+    h += '<span class="wk-r">Energy</span>';
+    cols.forEach(function (c, i) { h += '<span class="wk-c" data-i="' + i + '"><span class="wk-m">' + (c.e != null ? pipsOnly('energy', c.e) : '--') + '</span>' + (c.e != null && i ? chg('energy', c.e, cols[i - 1].e) : '<span class="chg">&nbsp;</span>') + '</span>'; });
+    h += '<span class="wk-r">Soreness</span>';
+    cols.forEach(function (c, i) { h += '<span class="wk-c" data-i="' + i + '"><span class="wk-m">' + (c.s != null ? pipsOnly('sore', c.s) : '--') + '</span>' + (c.s != null && i && cols[i - 1].s != null ? chg('sore', c.s, cols[i - 1].s) : '<span class="chg">&nbsp;</span>') + '</span>'; });
+    h += '</div><div class="wk-list">';
+    cols.forEach(function (c, i) {
+      h += '<div class="wk-row" data-i="' + i + '"><b>' + c.h + (c.tag ? ' <small>' + c.tag + '</small>' : '') + '</b>' +
+        '<span class="wk-it"><span class="nm">Energy</span>' + (c.e != null ? pipsOnly('energy', c.e) + (i ? chg('energy', c.e, cols[i - 1].e) : '') : '--') + '</span>' +
+        '<span class="wk-it"><span class="nm">Soreness</span>' + (c.s != null ? pipsOnly('sore', c.s) + (i && cols[i - 1].s != null ? chg('sore', c.s, cols[i - 1].s) : '') : '--') + '</span></div>';
+    });
+    box.innerHTML = h + '</div>';
+    var cells = box.querySelectorAll('.wk-h, .wk-c, .wk-row');
+    Array.prototype.forEach.call(cells, function (c) { c.classList.add('hid'); });
+    for (var i = 0; i < cols.length; i++) {
+      Array.prototype.forEach.call(box.querySelectorAll('.wk-c[data-i="' + i + '"], .wk-row[data-i="' + i + '"]'), function (c) { c.classList.remove('hid'); });
+      var hs = box.querySelectorAll('.wk-h')[i]; if (hs) hs.classList.remove('hid');
+      await sleep(i ? 1600 : 900, tk);
+    }
+    await sleep(1500, tk);
+  }
+  function renderVitals() {
+    var v = $('#vitals'), l = st.last;
+    if (st.noVit) { v.hidden = true; return; }
+    if (st.demoVit) { v.hidden = false; v.innerHTML = (st.demoVit.sore ? scaleHtml('sore', st.demoVit.sore) : '') + scaleHtml('energy', st.demoVit.energy); return; }
+    if (!l) { v.hidden = true; return; }
+    v.hidden = false; v.innerHTML = scaleHtml('sore', l.soreness) + scaleHtml('energy', l.energy);
+  }
+
+  /* ---------- tests ---------- */
+  async function attempt(lift, p0, p1, tk) {
+    st.pos[lift] = p0;
+    setScene(lift);
+    setCaption(liftTag(lift) + 'Test: ' + TESTNAME[lift]);
+    await sleep(350, tk);
+    var up = p1 >= p0 - 0.05;
+    R.strain = 1;
+    if (lift === 'push') {
+      var x0 = pushX(p0);
+      await tween(1700, function (t) {
+        var q = ease(t), xb = pushX(p0 + (p1 - p0) * q);
+        R.head = 12 * Math.min(1, t * 4);
+        R.jx = (p1 < 100 && t > 0.75) ? Math.sin(t * 60) * 1.2 : 0;
+        setBoulder(xb, (xb - x0) / PUSH_R * 57.3);
+        R.cx += R.jx; drawRhino(); if (t > 0 && t < 1) dust();
+      }, tk);
+    } else if (lift === 'pull') {
+      var a = pullState(p0), b = pullState(p1);
+      await tween(1700, function (t) {
+        var q = ease(t), tilt, pop = 0;
+        if (b.pop === 1 && a.pop === 0) { tilt = a.tilt + (28 - a.tilt) * Math.min(1, q / 0.65); pop = clamp((q - 0.65) / 0.35, 0, 1); }
+        else if (a.pop === 1 && b.pop === 0) { tilt = 28 + (b.tilt - 28) * q; pop = 1 - Math.min(1, q / 0.5); if (q < 0.5) tilt = 28; else tilt = 28 + (b.tilt - 28) * ((q - 0.5) / 0.5); }
+        else if (a.pop === 1) { tilt = 28; pop = 1; }
+        else { tilt = a.tilt + (b.tilt - a.tilt) * q + (t < 1 && p1 < 100 ? Math.sin(t * 50) * (1.2 + p1 / 50) * (1 - q * 0.5) : 0); }
+        R.cx = pullCx(p0 + (p1 - p0) * q);
+        R.head = 8 * Math.min(1, t * 4); R.jy = Math.sin(t * 40) * 0.6;
+        setStump(Math.max(0, tilt), pop); drawRhino(); if (t > 0 && t < 1) dust();
+        if (pop > 0.05 && pop < 0.6) puff(STUMP_X - 20 + Math.random() * 40, 258, 4);
+      }, tk);
+      R.jy = 0;
+    } else {
+      var r = TIRE_R;
+      setTire(TIRE_X, 262 - r * 1.3, 0, 1);
+      await tween(280, function (t) { R.head = 20 * ease(t); setTire(TIRE_X - 6 * t, 262 - r * 1.3, 0, 1); drawRhino(); }, tk);
+      var L = landing(p1), tr = tireRest(p1);
+      var ys = 262 - r * 1.3 - 26, yl = L.where === 'water' ? 262 + r * 0.2 : 262 - r * 1.3;
+      var H = 46 + 96 * clamp((p1 - 20) / 80, 0, 1);
+      dust();
+      await tween(950, function (t) {
+        R.head = 20 - 44 * Math.min(1, t * 6) + 24 * clamp((t - 0.3) / 0.7, 0, 1);
+        var x = TIRE_X + (L.x - TIRE_X) * t, y = ys + (yl - ys) * t - H * 4 * t * (1 - t);
+        setTire(x, y, 520 * t, 1); drawRhino();
+      }, tk);
+      R.head = 0;
+      if (L.where === 'water') {
+        for (var i = 0; i < 3; i++) (function (k) { setTimeout(function () { puff(L.x, 264, 8 + k * 6, 'splash'); }, k * 120); })(i);
+        await tween(500, function (t) { setTire(L.x, yl + (tr.y - yl) * t, 520, 1 - (1 - tr.op) * t); }, tk);
+      }
+    }
+    R.strain = 0; R.jx = 0; drawRhino(); breath();
+    st.pos[lift] = p1;
+    if (st.gb) st.gb[lift] = Math.max(st.gb[lift], p1);
+    var label = outcomeText(lift, p1);
+    setCaption(liftTag(lift) + NAMES[lift] + ': <span style="color:' + (p1 >= 100 ? 'var(--good)' : 'inherit') + '">' + label + '</span>');
+    await sleep(1100, tk);
+    R.head = 0; drawGhost(); drawRhino();
+    return label;
+  }
+
+  /* ---------- demonstration set ---------- */
+  async function demoSet(l, tk, eFrom, eTo) {
+    var rq = E.repQualities(st.sim, st.plan, l); if (!rq) return;
+    var lp = st.plan.lifts[l], p = st.pos[l];
+    st.skip = st.skipAll;
+    setScene(l);
+    if (l === 'explosive') setTire(TIRE_X, 262 - TIRE_R * 1.3, 0, 1);
+    $('#btnSkip').textContent = 'Skip the training animation'; $('#btnSkip').hidden = false;
+    setCaption(liftTag(l) + 'Demonstration set: ' + NAMES[l] + '<small>' + lp.load + '% × ' + lp.reps + ' reps, ' + lp.rest + ' min rest</small>');
+    showReps(rq.planned);
+    await sleep(500, tk);
+    var xb0 = pushX(p), tilt0 = pullState(p).tilt, cx0 = pullCx(p);
+    var done = 0, sum = 0;
+    for (var k = 0; k < rq.reps.length; k++) {
+      var rep = rq.reps[k], q = rep.missed ? 0 : rep.q;
+      var dur = l === 'explosive' ? (900 - 480 * E.speedOf(lp, l)) : (rep.missed ? 1500 : 800 + (1 - q) * 1000);
+      var amp = rep.missed ? 0.25 : 1, trem = rep.missed ? 2.5 : (1 - q) * 2.5;
+      R.strain = (rep.missed || q < 0.55) ? 1 : 0;
+      await tween(dur, function (t) {
+        var s = Math.sin(Math.PI * t) * amp;
+        R.jx = Math.sin(t * 70) * trem * Math.sin(Math.PI * t);
+        R.head = 10 * s;
+        if (l === 'push') { var xb = xb0 + 14 * s; setBoulder(xb, (xb - xb0) / PUSH_R * 57.3); R.cx += R.jx; }
+        else if (l === 'pull') { R.cx = cx0 - 10 * s; setStump(tilt0 + 2.5 * s, 0); }
+        else { setTire(TIRE_X, 262 - TIRE_R * 1.3 - 36 * s, 120 * s, 1); R.head = 16 * s; }
+        drawRhino();
+      }, tk);
+      R.jx = 0; R.strain = 0;
+      markRep(k, rep);
+      if (eFrom != null) { st.demoVit.energy = clamp(Math.round(eFrom + (eTo - eFrom) * (k + 1) / rq.reps.length), 1, 5); renderVitals(); }
+      if (!rep.missed) { done++; sum += q; }
+      await sleep(180, tk);
+    }
+    drawRhino();
+    var avg = done ? qStep(sum / done) : 0;
+    var msg = !rq.canLift ? 'The rhino cannot lift this load.' : (rq.fail ? 'The set ended in failure after ' + done + ' rep' + (done === 1 ? '' : 's') + '.' : 'Set complete.');
+    setCaption(liftTag(l) + NAMES[l] + ': ' + msg + (done ? '<small>average rep quality ' + avg + ' of 5</small>' : ''));
+    await sleep(900, tk);
+    st.skip = st.skipAll;
+    setScene(l);
+  }
+
+  /* ---------- HUD, progress, timeline ---------- */
+  function lastTest() { return st.tests.length ? st.tests[st.tests.length - 1] : null; }
+  function renderHud() {
+    var sim = st.sim;
+    $('#hudWeek').textContent = 'Week ' + sim.week + ' of 12';
+    $('#hudBlock').textContent = !st.tests.length ? 'Baseline tests' : (st.phase === 'debrief' ? 'Run complete' : 'Block ' + (st.block + 1) + ' of 3');
+    var chip = $('#hudStatus'), ev = sim.event;
+    if (sim.rest) { chip.hidden = false; chip.className = 'chip danger'; chip.textContent = 'Resting'; }
+    else if (ev && ev.type === 'injury') { chip.hidden = false; chip.className = 'chip danger'; chip.textContent = 'Limping'; }
+    else if (ev) { chip.hidden = false; chip.className = 'chip danger'; chip.textContent = 'Run down'; }
+    else chip.hidden = true;
+    $('#btnSkip').hidden = !st.busy;
+    if (st.busy && !st.demo) $('#btnSkip').textContent = 'Skip animation';
+    $('#runNo').textContent = 'Run ' + st.runNo;
+  }
+  function ruBtn() { return '<button class="qm" type="button" data-help="ru" aria-label="What are Rhino Units" aria-expanded="false">?</button>'; }
+  function qmBtn(l) { return '<button class="qm" type="button" data-help="' + l + '" aria-label="About the ' + (l === 'explosive' ? 'toss' : l) + '" aria-expanded="false">?</button>'; }
+  function renderProg() {
+    var t = lastTest();
+    $('#ladders').innerHTML = LIFTS.map(function (l) {
+      var v = t ? t.lifts[l].progress : null, best = st.sim.best[l], showPR = t && best > v + 0.05, done = v != null && v >= 100;
+      return '<div class="lift-' + l + '"><h3><span class="dot l"></span>' + NAMES[l] + '</h3>' +
+        '<div class="big">' + (v == null ? '<span style="color:var(--ink-2)">--</span>' : fmtP(v) + '%') + (showPR ? '<small>PR ' + fmtP(best) + '%</small>' : '') + '</div>' +
+        '<div class="pbar' + (done ? ' done' : '') + '" role="img" aria-label="' + (v == null ? 'Not tested yet' : fmtP(v) + ' percent of the way to the goal' + (showPR ? ', personal best ' + fmtP(best) + ' percent' : '')) + '"><i style="width:' + (v == null ? 0 : v).toFixed(1) + '%"></i>' + (showPR ? '<em style="left:calc(' + best.toFixed(1) + '% - 1px)"></em>' : '') + '</div>' +
+        '<p class="sub">' + (v == null ? 'Not tested yet' : (done ? 'Goal reached' : 'of the way to the goal')) + '</p></div>';
+    }).join('');
+  }
+  function cellHtml(txt, cls) { return '<span class="cell ' + cls + '">' + txt + '</span>'; }
+  function renderTimeline() {
+    var h = '<span class="tl-label" style="grid-column:span 1" aria-hidden="true">&nbsp;</span>';
+    for (var b = 0; b < 3; b++) h += '<span class="tl-label" style="grid-column:span 5">Block ' + (b + 1) + '</span>';
+    h += cellHtml('T', st.tests.length >= 1 ? 'test done' : 'test');
+    var seen = { hurt: false, rest: false, deload: false };
+    for (b = 0; b < 3; b++) {
+      for (var i = 1; i <= 4; i++) {
+        var w = b * 4 + i, e = st.sim.log[w - 1], cls = '', txt = w;
+        if (e) {
+          cls = e.resting ? 'rest' : ((e.event || e.eventActive) ? 'hurt' : 'done');
+          if (e.resting) { txt = 'R'; seen.rest = true; } else if (e.deload) { txt = 'D'; seen.deload = true; }
+          if (cls === 'hurt') seen.hurt = true;
+        } else if (st.nowWeek === w) cls = 'now';
+        h += cellHtml(txt, cls);
+      }
+      h += cellHtml('T', st.tests.length >= b + 2 ? 'test done' : 'test');
+    }
+    $('#timeline').innerHTML = h;
+    var k = '<span><i style="background:var(--accent-soft)"></i>Trained</span><span><i style="background:var(--accent)"></i>Test done</span>';
+    if (seen.hurt) k += '<span><i style="background:var(--danger-soft)"></i>Injured or overtrained</span>';
+    if (seen.rest) k += '<span><i style="background:var(--danger-soft)"></i>Resting (R)</span>';
+    if (seen.deload) k += '<span><b class="mono">D</b>&nbsp;Deload week</span>';
+    $('#tlKey').innerHTML = k;
+  }
+  function refresh() { renderHud(); renderProg(); renderTimeline(); renderVitals(); drawRhino(); }
+
+  /* ---------- planner ---------- */
+  var FUEL = [['low', 'Low', 'Under-eating'], ['adequate', 'Adequate', 'Meets demand'], ['high', 'High', 'Surplus']];
+  var RECOV = [['poor', 'Poor', 'Limited rest'], ['adequate', 'Adequate', 'Typical'], ['good', 'Good', 'Full rest']];
+  var INTENT = [['controlled', 'Controlled', 'Smooth'], ['brisk', 'Brisk', 'Fast'], ['maximal', 'Maximal', 'All-out speed']];
+  function segHtml(name, opts, val, lift) {
+    return '<div class="seg" role="radiogroup" aria-label="' + name + '">' + opts.map(function (o) {
+      var id = 'f-' + (lift || 's') + '-' + name + '-' + o[0];
+      return '<input type="radio" name="' + (lift || 's') + '-' + name + '" id="' + id + '" value="' + o[0] + '" data-f="' + name + '"' + (lift ? ' data-l="' + lift + '"' : '') + (val === o[0] ? ' checked' : '') + '>' +
+        '<label for="' + id + '">' + o[1] + '<small>' + o[2] + '</small></label>';
+    }).join('') + '</div>';
+  }
+  function frow(lift, f, label, min, max, step, val) {
+    var id = 'f-' + (lift || 's') + '-' + f;
+    return '<div class="frow"><label for="' + id + '">' + label + '</label><input type="range" id="' + id + '" data-f="' + f + '"' + (lift ? ' data-l="' + lift + '"' : '') +
+      ' min="' + min + '" max="' + max + '" step="' + step + '" value="' + (val || min) + '"><output id="o-' + (lift || 's') + '-' + f + '" for="' + id + '"></output></div>';
+  }
+  function loadRow(l, val) {
+    var id = 'f-' + l + '-load';
+    return '<div class="frow load"><label for="' + id + '">Load</label><input type="range" id="' + id + '" data-f="load" data-l="' + l + '" min="' + CFG.loadRange[0] + '" max="' + CFG.loadRange[1] + '" step="1" value="' + (val || CFG.loadRange[0]) + '">' +
+      '<span class="pc"><input class="numin" type="number" inputmode="numeric" id="n-' + l + '-load" data-f="load" data-l="' + l + '" data-num="1" min="' + CFG.loadRange[0] + '" max="' + CFG.loadRange[1] + '" step="1" value="' + (val || '') + '" aria-label="' + NAMES[l] + ' load, percent of max">%</span></div><p class="ruline" id="r-' + l + '-load" aria-live="polite"></p>';
+  }
+  function trainedLifts(p) { return LIFTS.filter(function (l) { var x = p.lifts[l]; return x.load > 0 && x.reps > 0 && x.sets > 0; }); }
+  function planSummary(p) {
+    if (!p) return '';
+    var parts = LIFTS.map(function (l) {
+      var x = p.lifts[l];
+      return (x.sets > 0 && x.reps > 0 && x.load > 0) ? NAMES[l] + ' ' + x.load + '% × ' + x.reps + ' × ' + x.sets + ', ' + x.rest + ' min rest' + (l === 'explosive' && E.intentPct(x) ? ' (speed of effort ' + E.intentPct(x) + '%)' : '') : NAMES[l] + ' not trained';
+    });
+    return parts.join('; ') + '. ' + p.sessions + ' sessions a week, ' + p.fuel + ' fueling, ' + (p.recovery || p.sleep) + ' recovery' + (p.deload ? ', deload in week 4' : '') + '.';
+  }
+  function planIssues(p) {
+    var iss = [], any = false, lo = CFG.loadRange[0], hi = CFG.loadRange[1];
+    LIFTS.forEach(function (l) {
+      var x = p.lifts[l], n = (x.load > 0) + (x.reps > 0) + (x.sets > 0);
+      if (x.load > 0 && (x.load < lo || x.load > hi)) iss.push('Set the ' + NAMES[l].toLowerCase() + ' load between ' + lo + '% and ' + hi + '%.');
+      else if (n === 3) {
+        any = true;
+        if (!x.rest) iss.push('Set the rest between sets for the ' + NAMES[l].toLowerCase() + '.');
+        if (l === 'explosive' && !E.intentPct(x)) iss.push('Set a speed of effort for the toss.');
+      } else if (n > 0) iss.push('Finish or clear the ' + NAMES[l].toLowerCase() + ' lift: it needs load, reps and sets.');
+    });
+    if (!any) iss.push('Set load, reps and sets for at least one lift.');
+    if (!p.sessions) iss.push('Set sessions per week.');
+    if (!p.fuel) iss.push('Choose fueling.');
+    if (!p.recovery) iss.push('Choose recovery.');
+    return iss;
+  }
+  function helpHtml() {
+    return '<details class="helpd"><summary>What do these terms mean?</summary><dl>' +
+      '<dt>Rhino Units (RUs)</dt><dd>The unit of force in this sandbox. Each lift starts with a tested max of 100 RUs. The test is the most the rhino can do in that lift right now.</dd>' +
+      '<dt>Load</dt><dd>A percent of the latest tested max. Type a number or use the slider. After each retest, 100% means the new max.</dd>' +
+      '<dt>Reps in reserve</dt><dd>How many more reps the rhino could have done at the end of a set. Zero means the set ended in failure.</dd>' +
+      '<dt>Rest</dt><dd>Minutes between sets of that exercise.</dd>' +
+      '<dt>Recovery</dt><dd>Sleep and downtime away from training.</dd>' +
+      '<dt>Speed of effort</dt><dd>How fast the rhino tries to move the load on the toss.</dd>' +
+      '<dt>Deload</dt><dd>A lighter final week of the block. The sets are halved so fatigue can clear before the test.</dd></dl></details>';
+  }
+  function panelPlan(mode) {
+    var b = st.block, p = st.plan, h = '';
+    if (mode === 'modify') {
+      h += '<p class="eyebrow">Block ' + (b + 1) + ' of 3 · Week ' + st.sim.week + '</p><h2>' + (st.ask && st.ask.from === 'rest' ? 'Resume with a modified plan' : 'Modify the plan') + '</h2>' +
+        '<p class="lead">This plan runs for the rest of the block. Change load, volume or which lifts are trained.</p>';
+    } else {
+      h += '<p class="eyebrow">Block ' + (b + 1) + ' of 3 · Weeks ' + (b * 4 + 1) + ' to ' + (b * 4 + 4) + '</p><h2>Plan the block</h2>' +
+        '<p class="lead">' + (b === 0 ? 'Every setting starts blank. Choose each one on purpose.' : 'The settings start from last block’s plan. Loads keep the same weight, so the percentages can look lower now that the maxes are higher.') + '</p>';
+      if (b > 0) {
+        var t = lastTest(), prev = st.tests[st.tests.length - 2];
+        h += '<div class="refcard"><b>Last block</b><span>' + planSummary(st.plans[b - 1]) + '</span><span>' +
+          LIFTS.map(function (l) { var d = t.lifts[l].tested - prev.lifts[l].tested; return NAMES[l] + ' max ' + prev.lifts[l].tested.toFixed(1) + ' to ' + t.lifts[l].tested.toFixed(1) + ' (' + (d >= 0 ? '+' : '') + d.toFixed(1) + ')'; }).join('. ') + '.</span></div>';
+      }
+      if (st.sim.rest) h += '<p class="symptom">The rhino is still resting. This plan starts when the rest ends.</p>';
+    }
+    LIFTS.forEach(function (l) {
+      var x = p.lifts[l];
+      h += '<div class="liftcard lift-' + l + '"><h3><span><span class="dot l"></span> ' + NAMES[l] + '</span><small>' + TESTNAME[l] + ' · max ' + st.sim.max[l].toFixed(1) + ' RUs ' + ruBtn() + '</small></h3>' +
+        loadRow(l, x.load) + frow(l, 'reps', 'Reps', 0, 12, 1, x.reps) + frow(l, 'sets', 'Sets', 0, 8, 1, x.sets) + frow(l, 'rest', 'Rest', CFG.restRange[0], CFG.restRange[1], CFG.restRange[2], x.rest) +
+        (l === 'explosive' ? frow(l, 'intent', 'Speed of effort', 0, 100, 5, E.intentPct(x)) + '<p class="note">All the way right is an all-out effort. Heavier loads move more slowly even at full effort.</p>' : '') +
+        '<p class="note" id="n-' + l + '"></p><p class="carry" id="c-' + l + '" hidden></p></div>';
+    });
+    h += '<div class="shared">' + frow(null, 'sessions', 'Session frequency', 0, 7, 1, p.sessions) +
+      '<div><span class="lbl">Fueling</span>' + segHtml('fuel', FUEL, p.fuel) + '</div>' +
+      '<div><span class="lbl">Recovery</span>' + segHtml('recovery', RECOV, p.recovery) + '</div>';
+    if (mode !== 'modify') h += '<label class="check"><input type="checkbox" id="f-deload" data-f="deload"' + (p.deload ? ' checked' : '') + '><span><b>Deload in week 4</b><br><span class="note">Halves the sets in the last week before the test.</span></span></label>';
+    h += '</div><div class="preview" id="preview"></div>' + helpHtml() +
+      '<div class="btn-row"><button class="btn primary" id="' + (mode === 'modify' ? 'btnModGo' : 'btnTrain') + '" type="button">' + (mode === 'modify' ? 'Resume training with this plan' : 'Train block ' + (b + 1)) + '</button>' +
+      '<button class="btn" id="btnClear" type="button">Clear all</button></div>' + diaryHtml();
+    return h;
+  }
+  function setOut(id, txt) { var o = $(id); if (o) o.textContent = txt; }
+  function updatePlanUi() {
+    var p = st.plan, sim = st.sim, total = 0, act = document.activeElement;
+    LIFTS.forEach(function (l) {
+      var x = p.lifts[l], M = sim.max[l];
+      var sl = $('#f-' + l + '-load'), nm = $('#n-' + l + '-load');
+      if (sl && sl !== act) sl.value = x.load || CFG.loadRange[0];
+      if (nm && nm !== act) nm.value = x.load || '';
+      if (nm) nm.className = 'numin' + (x.load && (x.load < CFG.loadRange[0] || x.load > CFG.loadRange[1]) ? ' bad' : '');
+      setOut('#o-' + l + '-reps', x.reps || '--');
+      setOut('#o-' + l + '-sets', x.sets || '--');
+      if (l === 'explosive') { var ip = E.intentPct(x); setOut('#o-explosive-intent', ip ? ip + '%' : '--'); var isl = $('#f-explosive-intent'); if (isl && isl !== act) isl.value = ip || 0; }
+      setOut('#o-' + l + '-rest', x.rest ? x.rest.toFixed(1) + ' min' : '--');
+      var rs = $('#f-' + l + '-rest'); if (rs && rs !== act) rs.value = x.rest || CFG.restRange[0];
+      var rl = $('#r-' + l + '-load'); if (rl) rl.innerHTML = x.load ? '<b>' + x.load + '% of Max</b> (' + (x.load / 100 * M).toFixed(0) + ' RUs)' : 'Set a load: % of Max (RUs)';
+      var n = $('#n-' + l), on = x.load > 0 && x.reps > 0 && x.sets > 0, inr = x.load >= CFG.loadRange[0] && x.load <= CFG.loadRange[1];
+      n.className = 'note';
+      if (!x.load && !x.reps && !x.sets) n.textContent = 'Not trained this block.';
+      else if (x.load && !inr) { n.className = 'note bad'; n.textContent = 'Load must be between ' + CFG.loadRange[0] + '% and ' + CFG.loadRange[1] + '%.'; }
+      else if (!on) n.textContent = 'Set load, reps and sets to train this lift.';
+      else {
+        var a = E.analyze(x, E.index(sim, l), M), s = '';
+        total += x.sets;
+        if (!a.canLift) { n.className = 'note bad'; s += 'Heavier than the rhino’s max. It cannot lift this.'; }
+        else if (a.fail) { n.className = 'note warn'; s += 'The rhino fails after about ' + a.maxReps + ' rep' + (a.maxReps > 1 ? 's' : '') + ', so sets end in failure.'; }
+        else if (l === 'explosive') {
+          // The toss is judged by relative load and speed of effort, not by distance from failure.
+          var ip2 = E.intentPct(x), ld = x.load <= 40 ? 'light' : (x.load <= 60 ? 'moderate' : 'heavy'), sp = ip2 >= 80 ? 'high' : (ip2 >= 40 ? 'moderate' : 'low');
+          if (!ip2) s += 'Set a speed of effort. Load is ' + ld + '.';
+          else if (ld === 'light' && sp === 'low') s += 'Easy work: light load and low speed intent.';
+          else if (ld === 'light' && sp === 'high') s += 'Relatively light load but high speed intent.';
+          else if (ld === 'heavy') s += 'Heavy load for the toss, with ' + sp + ' speed intent. Heavy loads move slowly even at full effort.';
+          else s += ld.charAt(0).toUpperCase() + ld.slice(1) + ' load, ' + sp + ' speed intent.';
+          if (a.rir <= 1) s += ' Sets end very close to failure.'; else if (a.rir <= 3.5) s += ' About ' + Math.round(a.rir) + ' reps in reserve.';
+        }
+        else if (a.rir <= 1) s += 'Sets end very close to failure.';
+        else if (a.rir <= 3.5) s += 'About ' + Math.round(a.rir) + ' reps in reserve.';
+        else s += a.rir > 8 ? 'Very easy sets, far from failure.' : 'Easy sets, about ' + Math.round(a.rir) + ' reps in reserve.';
+        n.textContent = s;
+      }
+      var c = $('#c-' + l), cr = st.carry[l];
+      if (c) { if (cr && x.load === cr.to) { c.hidden = false; c.textContent = 'Same weight as last block (' + cr.units.toFixed(0) + ' RUs). ' + cr.from + '% of the old max is ' + cr.to + '% of the new max.'; } else c.hidden = true; }
+    });
+    setOut('#o-s-reps', ''); setOut('#o-s-sessions', p.sessions ? p.sessions + '/wk' : '--');
+    var iss = planIssues(p), lines = [];
+    if (total && p.sessions) lines.push('<span><b>' + (total * p.sessions) + ' sets</b> a week across ' + p.sessions + ' session' + (p.sessions > 1 ? 's' : '') + '.</span>');
+    iss.forEach(function (i) { lines.push('<span class="note">' + i + '</span>'); });
+    if (!lines.length) lines.push('<span>Ready.</span>');
+    $('#preview').innerHTML = lines.join('');
+    var go = $('#btnTrain') || $('#btnModGo'); if (go) go.disabled = iss.length > 0;
+  }
+
+  /* ---------- diary ---------- */
+  var SYM = {
+    injury: { mild: 'Sore and stiff. The rhino is moving gingerly on one front leg.', moderate: 'Limping and guarding a front leg.', severe: 'Will not put weight on a front leg.' },
+    overtraining: { mild: 'Flat, slow and irritable for two weeks running.', moderate: 'Exhausted. Appetite and sleep are off, and every session feels heavy.', severe: 'Run down. Performance is falling and it cannot warm up.' }
+  };
+  var RESTTXT = {
+    injury: { early: 'Still painful under load.', improving: 'Improving, but still sore under load.', nearly: 'Much better. Slight discomfort under heavy load.', recovered: 'Pain-free and moving well.' },
+    overtraining: { early: 'Still exhausted.', improving: 'Energy is returning, but sessions would still feel heavy.', nearly: 'Nearly back to normal.', recovered: 'Fresh and eager to train.' }
+  };
+  function pushDiary(e) {
+    var d = { w: e.week, sym: '', cls: '', sig: scaleHtml('sore', e.soreness) + ' ' + scaleHtml('energy', e.energy) };
+    st.last = { soreness: e.soreness, energy: e.energy };
+    if (e.resting) {
+      d.txt = 'Rest week ' + e.restDone + ' of ' + e.restPlanned + '.';
+      d.sym = RESTTXT[st.lastEventType || 'injury'][e.restStatus.key]; d.cls = e.restStatus.healed ? 'good' : 'danger';
+    } else {
+      var sets = 0; LIFTS.forEach(function (l) { sets += e.lifts[l].vol || 0; });
+      d.txt = e.plan.sessions + ' sessions, ' + sets + ' sets' + (e.deload ? ' (deload week)' : '') + '.';
+      if (e.event) { d.sym = SYM[e.event][st.sim.event.severity]; d.cls = 'danger'; }
+      else if (e.aggravated) { d.sym = 'It got worse. ' + SYM[st.sim.event.type][e.aggravated]; d.cls = 'danger'; }
+      else if (e.eventActive) { d.sym = e.eventActive.type === 'injury' ? 'Still limping.' : 'Still run down.'; d.cls = 'danger'; }
+      else if (st.hadEvent && !st.sim.event) { d.sym = st.lastEventType === 'injury' ? 'Pain-free again.' : 'Fresh again.'; d.cls = 'good'; }
+    }
+    if (st.sim.event) st.lastEventType = st.sim.event.type;
+    st.hadEvent = !!st.sim.event;
+    st.diary.push(d);
+  }
+  function diaryHtml() {
+    var items = st.diary.length ? st.diary.slice().reverse().map(function (d) {
+      return '<li><b>' + (d.w ? 'Week ' + d.w : '') + '</b><span>' + d.txt + (d.sig ? '<span class="sig">' + d.sig + '</span>' : '') + (d.sym ? '<span class="sym ' + d.cls + '">' + d.sym + '</span>' : '') + '</span></li>';
+    }).join('') : '<li class="empty"><span></span><span>Nothing logged yet.</span></li>';
+    return '<details class="diary" open><summary>Training diary, newest first</summary><ol>' + items + '</ol></details>';
+  }
+
+  /* ---------- panels ---------- */
+  function panelIntro() {
+    return '<p class="eyebrow">Week 0 · Baseline</p><h2>Collect baseline data</h2>' +
+      '<p class="lead">The rhino has 12 weeks, split into three 4-week blocks. Test first, then plan each block and retest at the end of it.</p>' +
+      '<div class="introcards">' + LIFTS.map(function (l) { return '<div class="lift-' + l + '"><b>' + NAMES[l] + '</b>' + HELP[l] + '</div>'; }).join('') + '</div>' +
+      '<ul class="rules"><li>Each lift gets its own load, reps, sets and rest. Session frequency, fueling and recovery are shared.</li>' +
+      '<li>Force is measured in Rhino Units (RUs) ' + ruBtn() + '. Loads are a percent of the rhino\u2019s current max, shown with the RUs. After every retest the max changes.</li>' +
+      '<li>Watch the rhino and the diary. Some problems only show up as symptoms.</li></ul>' +
+      '<div class="btn-row"><button class="btn primary" id="btnBase" type="button">Run the baseline tests</button></div>' + diaryHtml();
+  }
+  function panelBusy(title, lead) {
+    return '<p class="eyebrow">' + (st.tests.length ? 'Block ' + (st.block + 1) + ' of 3' : 'Week 0 · Baseline') + '</p><h2>' + title + '</h2><p class="lead">' + lead + '</p>' + diaryHtml();
+  }
+  function panelResult() {
+    var t = lastTest(), prev = st.tests.length > 1 ? st.tests[st.tests.length - 2] : null, out = st.outcomes[st.outcomes.length - 1];
+    var base = st.tests.length === 1, last = st.tests.length === 4;
+    var h = '<p class="eyebrow">' + (base ? 'Baseline tests · week 0' : 'Block ' + (st.block + 1) + ' tests · week ' + t.week) + '</p><h2>' + (base ? 'Baseline set' : 'Retest complete') + '</h2>' +
+      '<p class="lead">' + (base ? 'Every lift starts halfway to its goal. These are the maxes your first percentages refer to.' : 'Percentages now refer to these new maxes.') + '</p><ul class="results">';
+    LIFTS.forEach(function (l) {
+      var o = t.lifts[l], d = prev ? o.tested - prev.lifts[l].tested : null;
+      var badge = base ? '' : (o.reached && o.newPR ? '<span class="badge pr">Goal reached</span>' : (o.newPR ? '<span class="badge pr">New PR</span>' : ''));
+      var best = st.sim.best[l];
+      h += '<li class="lift-' + l + '"><span><b>' + NAMES[l] + '</b>' + badge + '</span><span class="v">' + fmtP(o.progress) + '%</span>' +
+        '<span class="o ' + (o.reached ? 'ok' : '') + '">' + out[l].label + '. ' + (base ? 'Max ' + o.tested.toFixed(1) + ' RUs.' : 'Max ' + o.tested.toFixed(1) + ' RUs (' + (d >= 0 ? '+' : '') + d.toFixed(1) + '). 100% of Max is now ' + o.tested.toFixed(1) + ' RUs.') +
+        (!base && best > o.progress + 0.05 ? ' Personal best: ' + fmtP(best) + '%.' : '') + '</span></li>';
+    });
+    h += '</ul><div class="btn-row"><button class="btn primary" id="' + (last ? 'btnDebrief' : 'btnPlan') + '" type="button">' + (last ? 'See the debrief' : 'Plan block ' + (base ? 1 : st.block + 2)) + '</button></div>' + diaryHtml();
+    return h;
+  }
+  function weeksLeft() { return (st.block + 1) * 4 - st.sim.week; }
+  function leftTxt(left) { return left > 0 ? left + ' week' + (left > 1 ? 's are' : ' is') + ' left in this block.' : 'This block is over, and the test comes next.'; }
+  function panelDecision() {
+    var ev = st.sim.event, a = st.ask, left = weeksLeft();
+    return '<p class="eyebrow">Week ' + st.sim.week + ' · Decision</p><h2>' + (ev.type === 'injury' ? 'The rhino is hurt' : 'The rhino is overtrained') + '</h2>' +
+      '<p class="symptom">' + (a.aggravated ? 'It got worse. ' : '') + SYM[ev.type][ev.severity] + '</p>' +
+      '<p class="lead">Decide how to respond. ' + leftTxt(left) + '</p><div class="choice">' +
+      '<div class="opt"><b>Continue training as planned</b><p>Keep the same loads and volume.</p><div><button class="btn" id="btnDecCont" type="button">Continue</button></div></div>' +
+      '<div class="opt"><b>Modify training</b><p>' + (left > 0 ? 'Change load, volume or which lifts are trained for the rest of this block.' : 'You will set the new plan after the test.') + '</p><div><button class="btn" id="btnDecMod" type="button">Modify</button></div></div>' +
+      '<div class="opt"><b>Complete rest</b><p>No training. Rest weeks count against the 12 weeks.</p>' +
+      '<div class="frow"><label for="f-restw">Weeks</label><input type="range" id="f-restw" min="1" max="4" step="1" value="' + (st.restWeeks || 1) + '"><output id="o-restw">' + (st.restWeeks || 1) + '</output></div>' +
+      '<div><button class="btn" id="btnDecRest" type="button">Rest</button></div></div></div>' + diaryHtml();
+  }
+  function panelCheckin() {
+    var a = st.ask, type = st.lastEventType || 'injury', left = weeksLeft();
+    return '<p class="eyebrow">Week ' + st.sim.week + ' · Rest check-in</p><h2>How the rhino is recovering</h2>' +
+      '<p class="symptom ' + (a.status.healed ? 'good' : 'warn') + '">' + RESTTXT[type][a.status.key] + '</p>' +
+      '<p class="lead">Rest week ' + a.done + ' of ' + a.planned + ' is done. ' + leftTxt(left) + ' Keep resting, or resume now with the plan as set or with changes.</p>' +
+      '<div class="btn-row"><button class="btn" id="btnKeepRest" type="button">Keep resting</button><button class="btn primary" id="btnResume" type="button">Resume as planned</button><button class="btn" id="btnResumeMod" type="button">Resume with a modified plan</button></div>' + diaryHtml();
+  }
+  function panelReturn() {
+    var left = weeksLeft();
+    return '<p class="eyebrow">Week ' + st.sim.week + ' · Rest is over</p><h2>Back to training</h2>' +
+      '<p class="symptom good">' + (RESTTXT[st.lastEventType || 'injury'][st.ask.status ? st.ask.status.key : 'recovered']) + '</p>' +
+      '<p class="lead">' + leftTxt(left) + ' Resume with the plan as set or change it first.</p>' +
+      '<div class="btn-row"><button class="btn primary" id="btnRetPlan" type="button">Resume as planned</button><button class="btn" id="btnRetMod" type="button">Resume with a modified plan</button></div>' + diaryHtml();
+  }
+  function panelBlockDone() {
+    var b = st.block + 1, last = b >= 3;
+    return '<p class="eyebrow">Block ' + b + ' of 3 \u00b7 Week ' + st.sim.week + '</p><h2>Training block complete</h2>' +
+      '<p class="lead">The 4-week training block is finished. Open the training diary below to review what happened each week: sessions, sets, soreness, energy and any symptoms. Take your time. Then run the ' + (last ? 'final tests' : 'retests') + ' to see how the rhino changed.</p>' +
+      '<div class="btn-row"><button class="btn primary" id="btnRunTests" type="button">Run the ' + (last ? 'final' : 're') + 'tests</button></div>' + diaryHtml();
+  }
+  function renderPanel() {
+    closePop();
+    var h = '';
+    if (st.ask && st.ask.type === 'decision') h = panelDecision();
+    else if (st.ask && st.ask.type === 'checkin') h = panelCheckin();
+    else if (st.ask && st.ask.type === 'return') h = panelReturn();
+    else if (st.ask && st.ask.type === 'modify') h = panelPlan('modify');
+    else if (st.ask && st.ask.type === 'blockdone') h = panelBlockDone();
+    else if (st.phase === 'intro') h = panelIntro();
+    else if (st.phase === 'plan') h = panelPlan();
+    else if (st.phase === 'training') h = panelBusy('Training', planSummary(st.plan));
+    else if (st.phase === 'testing') h = panelBusy('Testing', 'A push, a pull and a toss.');
+    else if (st.phase === 'result' || st.phase === 'debrief') h = panelResult();
+    $('#panel').innerHTML = h;
+    if ($('#preview')) updatePlanUi();
+  }
+  function narrow() { return window.innerWidth <= 960; }
+  function focusOn(sel) {
+    if (!narrow()) return;
+    var el = $(sel); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+  function setTraining(on) { st.trainingActive = on; document.body.classList.toggle('training', !!on); }
+  function ask(a) {
+    document.body.classList.remove('training');
+    return new Promise(function (res) { st.ask = a; st.resolver = res; st.busy = false; renderHud(); renderPanel(); focusOn('#panel'); });
+  }
+  function answer(v) { if (st.trainingActive) document.body.classList.add('training'); var r = st.resolver; st.ask = null; st.resolver = null; if (r) r(v); }
+
+  /* ---------- help popovers and confirmations ---------- */
+  var popBtn = null, modalRes = null, modalPrev = null;
+  function closePop(back) {
+    var pop = $('#pop'); if (!pop || pop.hidden) { popBtn = null; return; }
+    pop.hidden = true;
+    if (popBtn) { popBtn.setAttribute('aria-expanded', 'false'); if (back && document.body.contains(popBtn)) popBtn.focus(); }
+    popBtn = null;
+  }
+  function openPop(btn) {
+    var again = popBtn === btn; closePop();
+    if (again) return;
+    var l = btn.dataset.help, pop = $('#pop');
+    pop.innerHTML = l === 'ru' ? '<b>Rhino Units</b>' + RU_HELP : (l === 'sources' ? '<b>Where gains come from</b>' + SRC_HELP : '<b>' + NAMES[l] + '</b>' + HELP[l]);
+    pop.hidden = false; btn.setAttribute('aria-expanded', 'true'); popBtn = btn;
+    var r = btn.getBoundingClientRect(), w = pop.offsetWidth, sx = window.pageXOffset, sy = window.pageYOffset;
+    pop.style.left = clamp(r.left + sx - 12, sx + 8, sx + document.documentElement.clientWidth - w - 8) + 'px';
+    pop.style.top = (r.bottom + sy + 8) + 'px';
+  }
+  function confirmDlg(title, desc, yes) {
+    return new Promise(function (res) {
+      $('#mT').textContent = title; $('#mD').textContent = desc; $('#mYes').textContent = yes || 'Confirm';
+      modalPrev = document.activeElement;
+      $('#modal').hidden = false; $('#mYes').focus();
+      modalRes = function (v) {
+        $('#modal').hidden = true; modalRes = null;
+        if (modalPrev && document.body.contains(modalPrev)) { try { modalPrev.focus(); } catch (e) {} }
+        res(v);
+      };
+    });
+  }
+
+  /* ---------- flows ---------- */
+  async function runTests(tk) {
+    st.noVit = false; $('#wkstrip').hidden = true; $('.stagewrap').classList.remove('dim'); renderVitals();
+    st.phase = 'testing'; st.busy = true; st.demo = false; st.skip = false; renderPanel(); refresh();
+    // phones: the retest button sits low on the page, so bring the stage back into view once the layout has settled
+    focusOn('.stage'); await sleep(60, tk); focusOn('.stage'); await sleep(400, tk); focusOn('.stage');
+    st.gb = JSON.parse(JSON.stringify(st.sim.best));
+    var t = E.testAll(st.sim), out = {};
+    for (var i = 0; i < LIFTS.length; i++) {
+      var l = LIFTS[i];
+      var p1 = t.lifts[l].progress;
+      var label = await attempt(l, st.pos[l], p1, tk);
+      out[l] = { label: label };
+      guard(tk);
+    }
+    st.gb = null;
+    st.tests.push(t); st.outcomes.push(out);
+    R.m = bulk();
+    setCaption(st.tests.length === 1 ? 'Baseline set. Plan the first block.' : 'Retest complete.');
+    st.phase = 'result'; st.busy = false;
+    refresh(); renderPanel(); focusOn('#panel');
+  }
+  async function resumeFlow(tk, mode, fromRest) {
+    if (mode === 'mod') {
+      await ask({ type: 'modify', from: fromRest ? 'rest' : 'return' });
+      guard(tk);
+      st.modPlans.push({ week: st.sim.week, plan: E.copy(st.plan) });
+    }
+  }
+  async function trainBlock(tk) {
+    var b = st.block, end = (b + 1) * 4;
+    st.noVit = true; st.phase = 'training'; st.busy = true; st.skip = false; st.skipAll = false; st.demo = true; setTraining(true);
+    // The demonstration shows the first week's session. Its energy drops as the rhino works; soreness appears after the last lift.
+    var preview = E.copy(st.sim), e1 = E.stepWeek(preview, st.plan, b);
+    var eStart = st.last ? st.last.energy : 5, eEnd = e1.resting ? eStart : e1.energy;
+    st.demoVit = null;
+    renderPanel(); refresh(); focusOn('.stage');
+    var tl0 = trainedLifts(st.plan);
+    for (var di = 0; di < tl0.length; di++) {
+      await demoSet(tl0[di], tk, null, null); guard(tk);
+    }
+    st.demoVit = null; hideReps(); st.demo = false; st.skip = st.skipAll; renderHud();
+    var weekRows = [], preLast = st.last, startE = eStart, startS = preLast ? preLast.soreness : null;
+    st.noVit = true; $('#vitals').hidden = true;
+    while (st.sim.week < end) {
+      var w = st.sim.week + 1;
+      st.nowWeek = w; st.busy = true;
+      var e = E.stepWeek(st.sim, st.plan, b);
+      pushDiary(e); weekRows.push(e);
+      st.nowWeek = 0;
+      refresh();
+      if (e.resting && st.sim.rest && e.restPlanned > 1 && e.restDone === Math.ceil(e.restPlanned / 2)) {
+        var c = await ask({ type: 'checkin', status: e.restStatus, done: e.restDone, planned: e.restPlanned });
+        guard(tk);
+        if (c !== 'keep') {
+          E.resume(st.sim); st.diary.push({ w: st.sim.week, txt: 'You ended the rest early.', sym: '', cls: '' });
+          if (c === 'resumeMod' && st.sim.week < end) await resumeFlow(tk, 'mod', true);
+        }
+        st.busy = true; renderPanel(); refresh(); focusOn('.stage');
+      } else if (e.resting && !st.sim.rest && st.sim.week < end) {
+        var rt = await ask({ type: 'return', status: e.restStatus });
+        guard(tk);
+        if (rt === 'mod') await resumeFlow(tk, 'mod', false);
+        st.busy = true; renderPanel(); refresh(); focusOn('.stage');
+      }
+      if (st.sim.pending && st.sim.week < 12) {
+        var ev = st.sim.event;
+        var d = await ask({ type: 'decision', aggravated: !!e.aggravated });
+        guard(tk);
+        E.decide(st.sim, d);
+        st.decisions.push({ week: st.sim.week, kind: d.kind, weeks: d.weeks || 0, severity: ev.severity, type: ev.type });
+        st.diary.push({ w: st.sim.week, txt: 'Decision: ' + (d.kind === 'continue' ? 'continue as planned.' : (d.kind === 'modify' ? 'modify training.' : 'complete rest for ' + d.weeks + ' week' + (d.weeks > 1 ? 's.' : '.'))), sym: '', cls: '' });
+        if (d.kind === 'modify' && st.sim.week < end) {
+          await ask({ type: 'modify' });
+          guard(tk);
+          st.modPlans.push({ week: st.sim.week, plan: E.copy(st.plan) });
+        }
+        st.busy = true; renderPanel(); refresh();
+      }
+    }
+    R.m = bulk(); drawRhino();
+    await showWeekSummary(startE, startS, weekRows, tk);
+    st.skip = false; st.skipAll = false; setTraining(false);
+    await ask({ type: 'blockdone' });
+    guard(tk);
+    await runTests(tk);
+  }
+  function run(fn) {
+    var tk = st.token;
+    fn(tk).catch(function (e) { if (e !== CANCEL) { console.error(e); throw e; } });
+  }
+  function anyFilled() {
+    var p = st.plan;
+    return p.sessions || p.fuel || p.recovery || LIFTS.some(function (l) { var x = p.lifts[l]; return x.load || x.reps || x.sets || x.rest || x.intent; });
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', function (ev) {
+    var tg = ev.target;
+    if (popBtn && !tg.closest('.qm') && !tg.closest('#pop')) closePop();
+    var q = tg.closest('.qm'); if (q) { openPop(q); return; }
+    var t = tg.closest('button'); if (!t) return;
+    var id = t.id;
+    if (id === 'mYes') { if (modalRes) modalRes(true); return; }
+    if (id === 'mNo') { if (modalRes) modalRes(false); return; }
+    if (id === 'btnBase') { if (!st.busy) run(runTests); }
+    else if (id === 'btnPlan') {
+      if (st.tests.length > 1) {
+        st.block = Math.min(2, st.block + 1);
+        var tt = lastTest(); st.carry = {};
+        LIFTS.forEach(function (l) {
+          var x = st.plan.lifts[l];
+          if (x.load > 0) {
+            var units = x.load / 100 * tt.lifts[l].prevMax, nl = clamp(Math.round(units / tt.lifts[l].tested * 100), CFG.loadRange[0], CFG.loadRange[1]);
+            if (nl !== x.load) st.carry[l] = { from: x.load, to: nl, units: units };
+            x.load = nl;
+          }
+        });
+        st.plan.deload = false;
+      }
+      st.phase = 'plan'; setCaption('Plan block ' + (st.block + 1) + '.'); renderPanel(); refresh(); focusOn('#panel');
+    }
+    else if (id === 'btnTrain') {
+      if (st.busy || planIssues(st.plan).length) return;
+      confirmDlg('Train block ' + (st.block + 1) + '?', 'The rhino trains for four weeks on this plan, then retests. You will see one demonstration set per exercise first. The plan cannot be changed once the block starts, unless something goes wrong.', 'Start training').then(function (ok) {
+        if (!ok || st.busy) return;
+        st.plans[st.block] = E.copy(st.plan); run(trainBlock);
+      });
+    }
+    else if (id === 'btnClear') {
+      if (!anyFilled()) return;
+      confirmDlg('Clear the whole plan?', 'Every setting returns to blank.', 'Clear all').then(function (ok) { if (ok) { st.plan = blankPlan(); st.carry = {}; renderPanel(); } });
+    }
+    else if (id === 'btnDebrief') { st.phase = 'debrief'; refresh(); window.RhinoDebrief.build(); }
+    else if (id === 'btnAgain') { restart(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }
+    else if (id === 'btnSkip') { st.skip = true; if (st.phase === 'training') st.skipAll = true; }
+    else if (id === 'btnDecCont') confirmDlg('Continue training as planned?', 'The same loads and volume continue. This choice is final.', 'Continue').then(function (ok) { if (ok) answer({ kind: 'continue' }); });
+    else if (id === 'btnDecMod') confirmDlg('Modify training?', 'You will change the plan for the rest of this block. This choice is final.', 'Modify').then(function (ok) { if (ok) answer({ kind: 'modify' }); });
+    else if (id === 'btnDecRest') { var wk = st.restWeeks || 1; confirmDlg('Rest for ' + wk + ' week' + (wk > 1 ? 's' : '') + '?', 'No training. Rest weeks count against the 12 weeks. You will get a check-in partway through a longer rest.', 'Start resting').then(function (ok) { if (ok) answer({ kind: 'rest', weeks: wk }); }); }
+    else if (id === 'btnModGo') { if (!planIssues(st.plan).length) answer(st.plan); }
+    else if (id === 'btnResume') confirmDlg('Resume training now?', 'The rest ends early and training restarts with the plan as set. Resuming before the rhino has healed can set recovery back.', 'Resume').then(function (ok) { if (ok) answer('resume'); });
+    else if (id === 'btnResumeMod') confirmDlg('Resume with a modified plan?', 'The rest ends early. You will change the plan next. Resuming before the rhino has healed can set recovery back.', 'Continue').then(function (ok) { if (ok) answer('resumeMod'); });
+    else if (id === 'btnRunTests') answer('go');
+    else if (id === 'btnKeepRest') answer('keep');
+    else if (id === 'btnRetPlan') confirmDlg('Resume as planned?', 'Training restarts with the plan as set.', 'Resume').then(function (ok) { if (ok) answer('plan'); });
+    else if (id === 'btnRetMod') confirmDlg('Resume with a modified plan?', 'You will change the plan next.', 'Continue').then(function (ok) { if (ok) answer('mod'); });
+    else if (id === 'btnRestart') {
+      if (st.phase === 'intro' || st.phase === 'debrief') { restart(); return; }
+      confirmDlg('Restart the run?', 'This run will be discarded and everything starts over from the baseline.', 'Restart').then(function (ok) { if (ok) restart(); });
+    }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') {
+      if (modalRes) { modalRes(false); ev.preventDefault(); return; }
+      if (popBtn) { closePop(true); ev.preventDefault(); }
+    } else if (ev.key === 'Tab' && modalRes) {
+      var y = $('#mYes'), n = $('#mNo'), a = document.activeElement;
+      if (ev.shiftKey && a === y) { n.focus(); ev.preventDefault(); } else if (!ev.shiftKey && a === n) { y.focus(); ev.preventDefault(); } else if (a !== y && a !== n) { y.focus(); ev.preventDefault(); }
+    }
+  });
+  function setField(t) {
+    if (!t.dataset || !t.dataset.f) return false;
+    var f = t.dataset.f, l = t.dataset.l, v;
+    if (t.dataset.num) { v = t.value === '' ? 0 : Math.round(+t.value); if (!isFinite(v)) v = 0; }
+    else v = t.type === 'range' ? +t.value : (t.type === 'checkbox' ? t.checked : t.value);
+    if (l) st.plan.lifts[l][f] = v; else st.plan[f] = v;
+    return true;
+  }
+  document.addEventListener('input', function (ev) {
+    var t = ev.target;
+    if (t.id === 'f-restw') { st.restWeeks = +t.value; $('#o-restw').textContent = t.value; return; }
+    if (setField(t)) updatePlanUi();
+  });
+  document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (t.dataset && t.dataset.num && t.value !== '') {
+      var v = clamp(Math.round(+t.value), CFG.loadRange[0], CFG.loadRange[1]);
+      t.value = v; setField(t); updatePlanUi();
+    }
+  });
+  document.addEventListener('pointerup', function (ev) {      // a click on an untouched slider's thumb picks that value
+    var t = ev.target;
+    if (t && t.type === 'range' && t.dataset && t.dataset.f) {
+      var cur = t.dataset.l ? st.plan.lifts[t.dataset.l][t.dataset.f] : st.plan[t.dataset.f];
+      if (!cur && +t.value) { setField(t); updatePlanUi(); }
+    }
+  });
+  function restart() {
+    fresh();
+    runs = load(KEY_RUNS, runs);
+    st.runNo = runs.length + 1;
+    $('#debrief').hidden = true; $('#debrief').innerHTML = '';
+    hideReps(); closePop();
+    R.m = 0; setScene('push');
+    setCaption('Three tests: a push, a pull and a toss.');
+    refresh(); renderPanel();
+  }
+
+  window.RhinoApp = {
+    E: E, $: $, NAMES: NAMES, LIFTS: LIFTS, reduce: reduce, fmtP: fmtP, qStep: qStep, scaleHtml: scaleHtml,
+    state: function () { return st; }, runs: function () { return runs; },
+    saveRuns: function (r) { runs = r.slice(-10); save(KEY_RUNS, runs); },
+    planSummary: planSummary, SYM: SYM, setScene: setScene, drawGhost: drawGhost
+  };
+
+  fresh();
+  R.m = 0; setScene('push');
+  refresh(); renderPanel();
+})();
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var A = window.RhinoApp, E = A.E, CFG = E.CFG, LIFTS = A.LIFTS, NAMES = A.NAMES, $ = A.$;
+  var SKEY = { push: 'push', pull: 'pull', explosive: 'toss' };
+  var charts = [];
+  function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
+  function f1(x) { return x.toFixed(1); }
+  function pct(x) { return Math.round(x * 100); }
+  function ranges(ws) {
+    var out = [], s = ws[0], p = ws[0];
+    for (var i = 1; i <= ws.length; i++) { if (ws[i] !== p + 1) { out.push(s === p ? '' + s : s + ' to ' + p); s = ws[i]; } p = ws[i]; }
+    return out.join(', ');
+  }
+  function spread(ys, gap, lo, hi) {            // keep direct labels from overlapping
+    var o = ys.map(function (y, i) { return { y: y, i: i }; }).sort(function (a, b) { return a.y - b.y; });
+    for (var k = 1; k < o.length; k++) if (o[k].y - o[k - 1].y < gap) o[k].y = o[k - 1].y + gap;
+    var over = o.length ? o[o.length - 1].y - hi : 0;
+    if (over > 0) o.forEach(function (q) { q.y -= over; });
+    var res = []; o.forEach(function (q) { res[q.i] = Math.max(lo, q.y); });
+    return res;
+  }
+
+
+  /* ---------- analysis ---------- */
+  function trainedWeeks(st, l) { return st.sim.log.filter(function (e) { return !e.resting && e.lifts[l] && e.lifts[l].trained; }); }
+  function prog(l, v) { return E.progressOf(l, v); }
+  function factors(st) {
+    var rows = [['Specificity', 'load, reps, rest and speed'], ['Volume', 'enough sets and sessions'], ['Fueling and recovery', 'rebuilding'], ['Variation', 'changing the plan'], ['Freshness', 'low fatigue']];
+    var data = {};
+    LIFTS.forEach(function (l) {
+      var ws = trainedWeeks(st, l);
+      if (!ws.length) { data[l] = null; return; }
+      var m = function (fn) { return avg(ws.map(function (e) { return fn(e.lifts[l].mult); })); };
+      data[l] = l === 'explosive'
+        ? [m(function (x) { return x.load * x.intent * x.reps * x.quality * x.rest; }), Math.min(1, m(function (x) { return x.dose * x.freq; }) / 0.45), Math.min(1, m(function (x) { return x.recovery; })), m(function (x) { return x.novelty; }), m(function (x) { return x.readiness; })]
+        : [m(function (x) { return x.intensity * x.reps * x.rest; }), Math.min(1, m(function (x) { return x.dose * x.freq; }) / 0.6), Math.min(1, m(function (x) { return x.recovery; })), m(function (x) { return x.novelty; }), m(function (x) { return x.readiness; })];
+    });
+    return { rows: rows, data: data };
+  }
+  var BEST = {
+    mild: 'A mild problem usually calls for modified training, not full rest.',
+    moderate: 'A moderate problem responds to about 2 weeks of rest or to a clear cut in training.',
+    severe: 'A severe problem needs about 3 weeks of complete rest.'
+  };
+  function weekList(log, fn) { return log.filter(fn).map(function (e) { return e.week; }); }
+  function findings(st, sc) {
+    var sim = st.sim, log = sim.log, out = [], fin = st.tests[st.tests.length - 1];
+    sim.events.forEach(function (ev) {
+      var cause = ev.type === 'overtraining' ? 'Fatigue stayed very high for two weeks in a row.' : ({
+        spike: 'The weekly workload jumped to ' + f1(ev.acwr) + ' times what the rhino was used to. Tissue adapts more slowly than muscle, so raise volume and load in steps.',
+        volume: 'The weekly workload was very high. More work stops paying off when tissue cannot recover.',
+        fatigue: 'The rhino was already badly fatigued, and tired tissue breaks down.',
+        failure: 'Sets ended in failure or the load was above the rhino’s max, which adds stress without useful stimulus.'
+      }[ev.cause]);
+      var ds = ev.decisions.map(function (d) { return d.kind === 'rest' ? 'rested ' + d.weeks + ' week' + (d.weeks > 1 ? 's' : '') : (d.kind === 'modify' ? 'modified training' : 'continued as planned'); });
+      var q = E.decisionQuality(ev);
+      var verdict = !ds.length ? '' : ' You ' + ds.join(', then ') + '. ' + (q >= 9 ? 'That was a sound response.' : (q >= 6 ? 'That worked, but it was not the best fit for how serious it was.' : 'That made things worse.')) + ' ' + BEST[ev.startSeverity];
+      out.push({ tone: 'danger', t: 'Week ' + ev.week + ': ' + (ev.type === 'injury' ? 'injury' : 'overtraining') + ', ' + ev.startSeverity + (ev.severity !== ev.startSeverity ? ' at first and ' + ev.severity + ' later' : ''),
+        x: cause + verdict + (ev.resumedEarly && ev.aggravated ? ' Resuming before the rhino was ready set the recovery back.' : '') });
+    });
+    var hs = weekList(log, function (e) { return !e.resting && e.soreness >= 4; });
+    if (hs.length) out.push({ tone: 'warn', t: (hs.length > 1 ? 'Weeks ' : 'Week ') + ranges(hs) + ': high soreness', x: 'Soreness climbs when many hard sets are packed into a session, when the workload jumps, or when the plan changes a lot. It is an early warning, and it fades as the same work repeats.' });
+    var le2 = weekList(log, function (e) { return !e.resting && e.energy <= 2; });
+    if (le2.length) out.push({ tone: 'warn', t: (le2.length > 1 ? 'Weeks ' : 'Week ') + ranges(le2) + ': low energy', x: 'Energy drops as fatigue builds, and faster when recovery or fueling is short. Tired work is lower-quality work, and it cuts the gains from every session.' });
+    if (fin.slip > 0.02 && !sim.lastDeload) out.push({ tone: 'warn', t: 'Fatigue hid about ' + pct(fin.slip) + '% of the rhino’s strength at the final test', x: 'Peripheral and central fatigue that had not cleared masked performance at the test, and central fatigue in particular builds up across heavy blocks. A deload in week 12 would have let more of the training show.' });
+    if (fin.bonus > 0.005) out.push({ tone: 'good', t: 'The final deload paid off', x: 'After heavy blocks, the lighter last week cleared fatigue and added about ' + f1(fin.bonus * 100) + '% at the test.' });
+    if (st.plans[0] && st.plans[0].deload) out.push({ tone: 'warn', t: 'The block 1 deload cost a week of training', x: 'A deload pays off after two or three heavy blocks. After one block there is little fatigue to clear.' });
+    LIFTS.forEach(function (l) {
+      var ws = trainedWeeks(st, l), nm = NAMES[l], gain = E.index(sim, l) - 100;
+      if (!ws.length) {
+        out.push({ tone: 'warn', t: nm + ' was never trained', x: 'It still rose ' + f1(gain) + ' points from carryover. Training one quality carries over to the others, but only a little.' });
+        return;
+      }
+      var rel = avg(ws.map(function (e) { return e.lifts[l].rel; })), reps = avg(ws.map(function (e) { return e.plan.lifts[l].reps; }));
+      if (l === 'explosive') {
+        var mi = avg(ws.map(function (e) { return e.lifts[l].mult.intent; })), mq = avg(ws.map(function (e) { return e.lifts[l].mult.quality; })), ml = avg(ws.map(function (e) { return e.lifts[l].mult.load; }));
+        var why = [];
+        if (mi < 0.9) why.push('the speed of effort was below maximal');
+        if (ml < 0.85) why.push('the load averaged ' + Math.round(rel) + '% of max, outside the 30 to 60% range where speed is highest');
+        if (mq < 0.9 || reps > 5) why.push('sets ran too long or too close to failure to stay fast');
+        if (why.length) out.push({ tone: 'warn', t: 'Toss training was not specific to explosiveness', x: 'Explosive strength improves most with light loads moved as fast as possible, for a few crisp reps. In this run ' + why.join(', and ') + '.' });
+      } else if (rel < 76 || reps > 7) {
+        out.push({ tone: 'warn', t: nm + ' training was light for maximal strength', x: 'It averaged ' + Math.round(reps) + ' reps at about ' + Math.round(rel) + '% of max. Maximal strength responds best to about 85% and up for 1 to 5 reps. Higher reps build muscle size and work capacity instead.' });
+      }
+      var gb = [0, 1, 2].map(function (b) { return (log[b * 4 + 3].index[l]) - (b === 0 ? 100 : log[b * 4 - 1].index[l]); });
+      var nov3 = avg(ws.filter(function (e) { return e.block === 2; }).map(function (e) { return e.lifts[l].mult.novelty; }));
+      if (gb[0] > 3 && gb[2] < gb[0] * 0.45 && nov3 && nov3 < 0.65) out.push({ tone: 'warn', t: nm + ' gains faded: +' + f1(gb[0]) + ' in block 1, +' + f1(gb[2]) + ' in block 3', x: 'The plan for this lift barely changed, so the same stimulus got less effective. Keeping the same weight, sets and reps is not a new stimulus, even when the percentage on screen looks different.' });
+    });
+    var lowFuel = [], poorRec = [];
+    st.plans.forEach(function (p, i) { if (p.fuel === 'low') lowFuel.push(i + 1); if ((p.recovery || p.sleep) === 'poor') poorRec.push(i + 1); });
+    if (lowFuel.length || poorRec.length) out.push({ tone: 'warn', t: 'Recovery held back the gains', x: (lowFuel.length ? 'Low fueling in block ' + lowFuel.join(', ') + '. ' : '') + (poorRec.length ? 'Poor recovery in block ' + poorRec.join(', ') + '. ' : '') + 'Training is the stimulus, but adaptation happens during recovery.' });
+    var shortRest = [];
+    LIFTS.forEach(function (l) { if (st.plans.some(function (p) { var x = p.lifts[l]; return x.sets > 0 && x.rest && x.rest <= 1; })) shortRest.push(NAMES[l].toLowerCase()); });
+    if (shortRest.length) out.push({ tone: 'warn', t: 'Short rests on the ' + shortRest.join(' and ') , x: 'Rests of a minute or less lower the quality of heavy and explosive sets. Short rests build some work capacity in the push, so the cost and benefit differ by lift.' });
+    if (log.some(function (e) { return e.capacityFactor != null && e.capacityFactor < 0.999; })) out.push({ tone: 'good', t: 'The rhino neared its limit', x: 'There is a ceiling on how much any athlete can adapt in 12 weeks. Near it, where you spend training decides which goals are in reach.' });
+    if (!sim.events.length) out.push({ tone: 'good', t: 'No injuries or overtraining', x: 'The rhino stayed healthy through all 12 weeks.' });
+    if (sc.goalsReached > 0) out.push({ tone: 'good', t: sc.goalsReached + ' goal' + (sc.goalsReached > 1 ? 's' : '') + ' reached at the final test', x: 'Reaching a goal means the final test hit 100%.' });
+    return out.slice(0, 10);
+  }
+
+  /* Principles: the core S&C ideas, matched against what the student actually did. */
+  function unitsAt(st, b, l) { var p = st.plans[b]; if (!p || !(p.lifts[l].sets > 0 && p.lifts[l].reps > 0 && p.lifts[l].load > 0)) return null; return p.lifts[l].load / 100 * st.tests[b].lifts[l].tested; }
+  function principles(st) {
+    var sim = st.sim, log = sim.log, out = [];
+    var tl = LIFTS.filter(function (l) { return trainedWeeks(st, l).length; });
+    // Specificity
+    var match = [], lines = [];
+    tl.forEach(function (l) {
+      var ws = trainedWeeks(st, l), rel = avg(ws.map(function (e) { return e.lifts[l].rel; })), reps = avg(ws.map(function (e) { return e.plan.lifts[l].reps; }));
+      if (l === 'explosive') {
+        var inten = avg(ws.map(function (e) { return e.lifts[l].mult.intent; }));
+        if (rel >= 30 && rel <= 60 && inten >= 0.9 && reps <= 5) { match.push(l); lines.push('your toss averaged ' + Math.round(reps) + ' reps at ' + Math.round(rel) + '% of max with maximal intent'); }
+      } else if (rel >= 80 && reps <= 6) { match.push(l); lines.push('your ' + NAMES[l].toLowerCase() + ' averaged ' + Math.round(reps) + ' reps at ' + Math.round(rel) + '% of max'); }
+    });
+    out.push({ name: 'Specificity (SAID)', met: match.length > 0 && match.length >= Math.ceil(tl.length / 2), x: 'The body adapts to the demands placed on it. In your run, ' + lines.join(' and ') + '.', q: 'Which quality was each of your lifts built to train, and does it match what its test measures?' });
+    // Progressive overload
+    var up = [];
+    LIFTS.forEach(function (l) { var a = unitsAt(st, 0, l), c = unitsAt(st, 2, l); if (a != null && c != null && c - a >= 2.5) up.push(NAMES[l] + ' went from ' + a.toFixed(0) + ' RUs in block 1 to ' + c.toFixed(0) + ' RUs in block 3'); });
+    out.push({ name: 'Progressive overload', met: up.length > 0, x: 'Adaptation continues when the demand rises over time. ' + up.join('; ') + '.', q: 'What told you it was time to raise the demand, and by how much?' });
+    // Variation
+    var nv = [];
+    tl.forEach(function (l) { var ws = trainedWeeks(st, l).filter(function (e) { return e.block >= 1; }); if (ws.length) nv.push(avg(ws.map(function (e) { return e.lifts[l].mult.novelty; }))); });
+    var nvm = nv.length ? avg(nv) : 0;
+    out.push({ name: 'Variation and accommodation', met: nv.length > 0 && nvm >= 0.8, x: 'The same stimulus repeated loses its effect. After block 1 your plans stayed fresh enough that the novelty factor averaged ' + pct(nvm) + '%.', q: 'What did you change between blocks, and what were you hoping that change would do?' });
+    // Recovery
+    var lowE = weekList(log, function (e) { return !e.resting && e.energy <= 2; });
+    var okRec = st.plans.every(function (p) { return p.fuel !== 'low' && (p.recovery || p.sleep) !== 'poor'; });
+    out.push({ name: 'Recovery and adaptation', met: !sim.events.length && okRec && lowE.length <= 1, x: 'Adaptation happens during recovery, not during the work. Energy stayed at 3 or better in ' + (log.filter(function (e) { return !e.resting && e.energy >= 3; }).length) + ' of ' + log.filter(function (e) { return !e.resting; }).length + ' training weeks, with no injury or overtraining.', q: 'Which week felt hardest for the rhino, and what in your plan caused it?' });
+    // Rest and rep quality
+    var qs = [];
+    tl.forEach(function (l) { var ws = trainedWeeks(st, l); qs.push({ l: l, q: avg(ws.map(function (e) { return e.lifts[l].quality; })) }); });
+    var qOk = qs.length && qs.every(function (z) { return z.q >= 0.7; });
+    out.push({ name: 'Rest and the quality of the work', met: qOk, x: 'Longer rests and sets that stop short of failure keep reps crisp. Your average rep quality was ' + qs.map(function (z) { return NAMES[z.l].toLowerCase() + ' ' + A.qStep(z.q) + ' of 5'; }).join(', ') + '.', q: 'How did you match rest to how heavy and how fast each set was?' });
+    // Reversibility (shown when it happened)
+    var fin = st.tests[st.tests.length - 1], slips = [];
+    LIFTS.forEach(function (l) { var b = sim.best[l], f = fin.lifts[l].progress; if (b > f + 1) slips.push(NAMES[l] + ' peaked at ' + A.fmtP(b) + '% and finished at ' + A.fmtP(f) + '%'); });
+    var restW = log.filter(function (e) { return e.resting; }).length;
+    if (slips.length || restW) out.push({ name: 'Reversibility', at: true, met: true, x: (slips.length ? slips.join('; ') + '. ' : '') + (restW ? 'You rested ' + restW + ' week' + (restW > 1 ? 's' : '') + '. ' : '') + 'Adaptations fade when the training stimulus drops or stops, though not as fast as they were built.', q: 'What would you change to carry a peak all the way to the final test?' });
+    return out;
+  }
+
+  /* ---------- charts ---------- */
+  function chart(box, H, label, build) {
+    var W = Math.max(280, Math.floor(box.clientWidth));
+    box.innerHTML = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + label + '">' + build(W, H) + '</svg>';
+  }
+  function chartProgress(box, st) {
+    chart(box, 320, 'Percent of the way to each goal by week, with test results', function (W, H) {
+      var l = 38, r = W < 480 ? 74 : 92, t = 14, b = 36, log = st.sim.log;
+      var all = [50]; log.forEach(function (e) { LIFTS.forEach(function (k) { all.push(prog(k, e.index[k])); }); });
+      st.tests.forEach(function (tt) { LIFTS.forEach(function (k) { all.push(tt.lifts[k].progress); }); });
+      var ymin = Math.max(0, Math.min(40, Math.floor(Math.min.apply(null, all) / 10) * 10)), ymax = 100;
+      var X = function (w) { return l + w / 12 * (W - l - r); }, Y = function (v) { return t + (ymax - v) / (ymax - ymin) * (H - t - b); };
+      var s = '';
+      log.forEach(function (e, i) { if (e.resting) s += '<rect class="shade" x="' + X(i) + '" y="' + t + '" width="' + (X(i + 1) - X(i)) + '" height="' + (H - t - b) + '"/>'; });
+      for (var v = ymin; v <= ymax; v += 10) s += '<line class="grid-l" x1="' + l + '" x2="' + (W - r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text x="' + (l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + '%</text>';
+      for (var w = 0; w <= 12; w += (W < 420 ? 2 : 1)) s += '<text x="' + X(w) + '" y="' + (H - 16) + '" text-anchor="middle">' + w + '</text>';
+      s += '<text x="' + (l + (W - l - r) / 2) + '" y="' + (H - 2) + '" text-anchor="middle">Week</text>';
+      s += '<line class="thr" x1="' + l + '" x2="' + (W - r) + '" y1="' + Y(100) + '" y2="' + Y(100) + '"/><text x="' + (l + 6) + '" y="' + (Y(100) + 15) + '">Goal</text>';
+      var ends = [];
+      LIFTS.forEach(function (k) {
+        var pts = [50].concat(log.map(function (e) { return prog(k, e.index[k]); }));
+        s += '<polyline class="ln s-' + SKEY[k] + '" points="' + pts.map(function (p, i) { return X(i).toFixed(1) + ',' + Y(p).toFixed(1); }).join(' ') + '"/>';
+        st.tests.forEach(function (tt) { var o = tt.lifts[k]; s += '<circle class="dot s-' + SKEY[k] + '" style="stroke-dasharray:none' + (o.newPR && tt.week > 0 ? ';fill:var(--c-' + SKEY[k] + ')' : '') + '" cx="' + X(tt.week) + '" cy="' + Y(o.progress) + '" r="4.5"/>'; });
+        ends.push(Y(pts[pts.length - 1]));
+      });
+      var ly = spread(ends, 15, t + 8, H - b);
+      LIFTS.forEach(function (k, i) { s += '<text class="t-strong f-' + SKEY[k] + '" x="' + (W - r + 8) + '" y="' + (ly[i] + 4) + '">' + NAMES[k] + ' ' + A.fmtP(st.tests[st.tests.length - 1].lifts[k].progress) + '%</text>'; });
+      return s;
+    });
+  }
+  function chartMeters(box, st) {
+    chart(box, 280, 'Peripheral fatigue, central fatigue and tissue stress by week', function (W, H) {
+      var l = 34, r = W < 480 ? 124 : 132, t = 14, b = 36, log = st.sim.log;
+      var X = function (w) { return l + (w - 1) / 11 * (W - l - r); }, Y = function (v) { return t + (100 - Math.min(100, v)) / 100 * (H - t - b); };
+      var s = '';
+      [0, 25, 50, 75, 100].forEach(function (v) { s += '<line class="grid-l" x1="' + l + '" x2="' + (W - r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text x="' + (l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + '</text>'; });
+      s += '<text x="' + (l + 6) + '" y="' + (Y(100) + 14) + '">Injury at 100</text>';
+      for (var w = 1; w <= 12; w += (W < 420 ? 2 : 1)) s += '<text x="' + X(w) + '" y="' + (H - 16) + '" text-anchor="middle">' + w + '</text>';
+      s += '<text x="' + (l + (W - l - r) / 2) + '" y="' + (H - 2) + '" text-anchor="middle">Week</text>';
+      var ser = [['F', 'warn', 'Peripheral fatigue'], ['C', 'cent', 'Central fatigue'], ['T', 'dang', 'Tissue stress']], ends = [];
+      ser.forEach(function (q) {
+        s += '<polyline class="ln s-' + q[1] + '" points="' + log.map(function (e, i) { return X(i + 1).toFixed(1) + ',' + Y(e[q[0]]).toFixed(1); }).join(' ') + '"/>';
+        ends.push(Y(log[11][q[0]]));
+      });
+      var ly = spread(ends, 15, t + 8, H - b);
+      ser.forEach(function (q, i) { s += '<text class="t-strong f-' + q[1] + '" x="' + (W - r + 8) + '" y="' + (ly[i] + 4) + '">' + q[2] + '</text>'; });
+      return s;
+    });
+  }
+  function chartFeel(box, st) {
+    chart(box, 240, 'Soreness and energy by week, on a 1 to 5 scale', function (W, H) {
+      var l = 30, r = W < 480 ? 74 : 90, t = 14, b = 36, log = st.sim.log;
+      var X = function (w) { return l + (w - 1) / 11 * (W - l - r); }, Y = function (v) { return t + (5 - v) / 4 * (H - t - b); };
+      var s = '';
+      [1, 2, 3, 4, 5].forEach(function (v) { s += '<line class="grid-l" x1="' + l + '" x2="' + (W - r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text x="' + (l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + '</text>'; });
+      for (var w = 1; w <= 12; w += (W < 420 ? 2 : 1)) s += '<text x="' + X(w) + '" y="' + (H - 16) + '" text-anchor="middle">' + w + '</text>';
+      s += '<text x="' + (l + (W - l - r) / 2) + '" y="' + (H - 2) + '" text-anchor="middle">Week</text>';
+      var ser = [['soreness', 'dang', 'Soreness'], ['energy', 'push', 'Energy']], ends = [];
+      ser.forEach(function (q) {
+        s += '<polyline class="ln ' + (q[1] === 'push' ? 's-push' : 's-dang') + '" points="' + log.map(function (e, i) { return X(i + 1).toFixed(1) + ',' + Y(e[q[0]]).toFixed(1); }).join(' ') + '"/>';
+        ends.push(Y(log[11][q[0]]));
+      });
+      var ly = spread(ends, 15, t + 8, H - b);
+      ser.forEach(function (q, i) { s += '<text class="t-strong ' + (q[1] === 'push' ? 'f-push' : 'f-dang') + '" x="' + (W - r + 8) + '" y="' + (ly[i] + 4) + '">' + q[2] + '</text>'; });
+      return s;
+    });
+  }
+  function chartRuns(box, hist, curN) {
+    chart(box, 260, 'Average percent of the way to the goals, by week, for recent runs', function (W, H) {
+      var l = 42, r = 70, t = 14, b = 36;
+      var all = []; hist.forEach(function (h) { all = all.concat(h.mean); });
+      var ymin = Math.min(40, Math.floor(Math.min.apply(null, all) / 10) * 10), ymax = 100;
+      var X = function (w) { return l + w / 12 * (W - l - r); }, Y = function (v) { return t + (ymax - v) / (ymax - ymin) * (H - t - b); };
+      var s = '';
+      for (var v = ymin; v <= ymax; v += 10) s += '<line class="grid-l" x1="' + l + '" x2="' + (W - r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text x="' + (l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + '%</text>';
+      for (var w = 0; w <= 12; w += 2) s += '<text x="' + X(w) + '" y="' + (H - 16) + '" text-anchor="middle">' + w + '</text>';
+      s += '<text x="' + (l + (W - l - r) / 2) + '" y="' + (H - 2) + '" text-anchor="middle">Week</text>';
+      var ends = hist.map(function (h) { return Y(h.mean[12]); }), ly = spread(ends, 14, t + 8, H - b);
+      hist.forEach(function (h, i) {
+        var cur = h.n === curN;
+        s += '<polyline class="ln ' + (cur ? 's-cur' : 's-old') + '" points="' + h.mean.map(function (p, k) { return X(k).toFixed(1) + ',' + Y(p).toFixed(1); }).join(' ') + '"/>';
+        s += '<text class="' + (cur ? 't-strong' : '') + '" x="' + (W - r + 8) + '" y="' + (ly[i] + 4) + '">Run ' + h.n + '</text>';
+      });
+      return s;
+    });
+  }
+
+  /* ---------- build ---------- */
+  var PARTS = [['nerv', 'Nervous system adaptations', 'k-neural', ['neural', 'own']], ['size', 'Muscle size', 'k-size', ['size']], ['work', 'Work capacity', 'k-anaer', ['anaer']], ['carry', 'Carryover from other lifts', 'k-spill', ['spill']]];
+  function pv(s, p) { return p[3].reduce(function (a, k) { return a + (s[k] || 0); }, 0); }
+  function prLine(st, l) {
+    var sim = st.sim, fin = st.tests[st.tests.length - 1].lifts[l].progress, best = sim.best[l], nm = NAMES[l];
+    var bw = null, rw = null;
+    st.tests.forEach(function (t, i) { if (i === 0) return; var p = t.lifts[l].progress; if (bw == null && p >= best - 0.05) bw = t.week; if (rw == null && p >= 100) rw = t.week; });
+    if (best >= 100) return fin >= 100 ? nm + ': goal reached in week ' + rw + ' and held at the final test.' : nm + ' PR: goal reached in week ' + rw + '. Final test: ' + A.fmtP(fin) + '%.';
+    if (best > fin + 0.05) return nm + ' PR: ' + A.fmtP(best) + '% in week ' + bw + '. Final test: ' + A.fmtP(fin) + '%.';
+    return nm + ': ' + A.fmtP(fin) + '% at the final test' + (best > 50.05 ? ', your personal best.' : '.');
+  }
+  function build() {
+    var st = A.state(), sim = st.sim, fin = st.tests[st.tests.length - 1];
+    var run = { sim: sim, tests: st.tests, final: fin }, sc = E.scoreRun(run);
+    var runs = A.runs();
+    if (!st.recorded) {
+      st.recorded = true;
+      runs.push({
+        n: st.runNo, score: sc.total, band: sc.band, goals: sc.goalsReached, events: sim.events.length,
+        tested: LIFTS.map(function (l) { return Math.round(fin.lifts[l].progress); }),
+        plans: st.plans.map(function (p) { return A.planSummary(p); }),
+        mean: [50].concat(sim.log.map(function (e) { return Math.round((prog('push', e.index.push) + prog('pull', e.index.pull) + prog('explosive', e.index.explosive)) / 3 * 10) / 10; }))
+      });
+      A.saveRuns(runs); runs = A.runs();
+    }
+    var fs = findings(st, sc), fc = factors(st), pr = principles(st);
+    var shown = pr.filter(function (p) { return p.met; }).slice(0, 4), notMet = pr.filter(function (p) { return !p.met; });
+    var h = '';
+    h += '<div class="card"><div class="score-row"><div class="score">' + sc.total + '<small>' + sc.band + '</small></div><div>' +
+      '<p class="eyebrow">Run ' + st.runNo + ' complete · ' + sc.goalsReached + ' of 3 goals reached at the final test</p><h2>' +
+      LIFTS.map(function (l) { return NAMES[l] + ' ' + A.fmtP(fin.lifts[l].progress) + '%'; }).join(' · ') + '</h2>' +
+      '<div class="pts"><span class="chip">Progress ' + sc.progress + '/50</span><span class="chip">Goals ' + sc.goals + '/10</span><span class="chip">Balance ' + sc.balance + '/5</span>' +
+      '<span class="chip">Efficiency ' + sc.efficiency + '/10</span><span class="chip">Health ' + sc.health + '/15</span><span class="chip">Decisions ' + sc.decisions + '/10</span></div>' +
+      '<p class="sub" style="margin:10px 0 0">The score reflects the final test, not the personal best. 90 and up is excellent, the 80s are good and the 70s are fair.</p></div></div>' +
+      '<ul class="rules" style="margin:14px 0 0">' + LIFTS.map(function (l) { return '<li>' + prLine(st, l) + '</li>'; }).join('') + '</ul></div>';
+    h += '<div class="card"><h3>What happened</h3><p class="sub">Read the plan against the result, change one thing, and run it again.</p><ul class="finds">' +
+      fs.map(function (f) { return '<li class="' + f.tone + '"><b>' + f.t + '</b><span>' + f.x + '</span></li>'; }).join('') + '</ul></div>';
+    h += '<div class="card"><h3>Principles at work in your run</h3><p class="sub">Core ideas from the course, matched to your own weeks and numbers.</p>' +
+      (shown.length ? '<div class="principles">' + shown.map(function (p) { return '<div class="pc2"><b>' + p.name + '</b><span>' + p.x + '</span><span class="ask">' + p.q + '</span></div>'; }).join('') + '</div>' : '<p class="note">No principle stood out this time. Look at what happened above, change one thing and run it again.</p>') +
+      (notMet.length ? '<details class="notmet"><summary>Not met this time</summary><p style="margin-top:6px">' + notMet.map(function (p) { return p.name; }).join(', ') + '</p></details>' : '') +
+      '<p class="note" style="margin-top:12px">Remember, training for one adaptation can sometimes come at the cost of another.</p></div>';
+    var qrows = LIFTS.map(function (l) {
+      return '<tr><td>' + NAMES[l] + '</td>' + [0, 1, 2].map(function (b) {
+        var ws = trainedWeeks(st, l).filter(function (e) { return e.block === b; });
+        return '<td class="num">' + (ws.length ? A.qStep(avg(ws.map(function (e) { return e.lifts[l].quality; }))) + ' / 5' : '--') + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    h += '<div class="card"><h3>What the work felt like</h3><p class="sub">Average rep quality in each block. It falls with fatigue, soreness, short rests, sets near failure and, on the toss, a lower speed of effort.</p><div class="tablewrap"><table><thead><tr><th>Lift</th><th class="num">Block 1</th><th class="num">Block 2</th><th class="num">Block 3</th></tr></thead><tbody>' + qrows + '</tbody></table></div></div>';
+    h += '<div class="card"><h3>What one change would have done</h3><p class="sub">The replay re-runs your block plans with a single change each time. It shows which change would have helped most, so look only when you are ready to see it.</p>' +
+      '<div class="btn-row"><button class="btn" id="btnWhatIf" type="button">Show the what-if replay</button></div><div id="whatif"></div></div>';
+    h += '<div class="two"><div class="card"><h3>Progress toward each goal, by week</h3><p class="sub">Lines are true strength. Circles are test results, which can read lower when the rhino is fatigued. Filled circles are new personal bests. Red columns are rest weeks.</p><div class="chartbox" id="chIndex"></div></div>' +
+      '<div class="card"><h3>Where the gains came from <button class="qm" type="button" data-help="sources" aria-label="What the gain sources mean" aria-expanded="false">?</button></h3><p class="sub">Rhino Units gained on each lift, by source.</p><div class="contrib">';
+    var mx = Math.max.apply(null, LIFTS.map(function (l) { return Math.max(0.1, E.index(sim, l) - 100); }));
+    LIFTS.forEach(function (l) {
+      var tot = E.index(sim, l) - 100;
+      h += '<div class="row lift-' + l + '"><div class="hd"><span><span class="dot l"></span> ' + NAMES[l] + '</span><span class="mono">+' + f1(tot) + '</span></div><div class="stack" role="img" aria-label="' +
+        PARTS.filter(function (p) { return pv(sim.lifts[l], p) > 0.05; }).map(function (p) { return p[1] + ' ' + f1(pv(sim.lifts[l], p)); }).join(', ') + '">' +
+        PARTS.map(function (p) { var v = pv(sim.lifts[l], p); return v > 0.05 ? '<i style="width:' + (v / mx * 100).toFixed(1) + '%;background:var(--' + p[2] + ')" title="' + p[1] + ' ' + f1(v) + '"></i>' : ''; }).join('') + '</div>' +
+        '<span class="note">' + PARTS.filter(function (p) { return pv(sim.lifts[l], p) > 0.05; }).map(function (p) { return p[1].toLowerCase() + ' ' + f1(pv(sim.lifts[l], p)); }).join(', ') + '</span></div>';
+    });
+    h += '</div><div class="legend">' + PARTS.map(function (p) { return '<span><i style="background:var(--' + p[2] + ')"></i>' + p[1] + '</span>'; }).join('') + '</div>' +
+      '<p class="note" style="margin-top:10px">Early gains are mostly nervous system. Muscle size builds more slowly and raises the ceiling for later strength.</p></div></div>';
+    h += '<div class="two"><div class="card"><h3>How the rhino felt</h3><p class="sub">Soreness (high is worse) and energy (high is better), week by week, on the same 1 to 5 scales you saw in the diary.</p><div class="chartbox" id="chFeel"></div></div>' +
+      '<div class="card"><h3>The meters you could not see</h3><p class="sub">Peripheral fatigue comes from volume, high reps, short rests and low fueling, and it cuts the push most. Central fatigue comes from heavy loads and all-out speed, clears slowly, and cuts the pull and toss most. Both kinds of fatigue hide strength at test time while they are high, and a deload week clears them so more of the training shows. Central fatigue clears more slowly, so it can pile up across blocks of heavy work. Tissue stress causes injury at 100.</p><div class="chartbox" id="chMeters"></div></div></div>';
+    h += '<div class="card"><h3>What held back each lift</h3><p class="sub">100% means that factor cost nothing. Lower numbers show where gains were lost.</p><div class="tablewrap"><table><thead><tr><th>Factor</th>' +
+      LIFTS.map(function (l) { return '<th class="num">' + NAMES[l] + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      fc.rows.map(function (r, i) {
+        return '<tr><td><b>' + r[0] + '</b><br><span class="note">' + r[1] + '</span></td>' + LIFTS.map(function (l) {
+          var d = fc.data[l]; if (!d) return '<td class="num">--</td>';
+          var v = pct(d[i]); return '<td class="num ' + (v < 80 ? 'low' : '') + '">' + v + '%</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div></div>';
+    h += '<div class="card"><h3>Plans you used</h3><div class="tablewrap"><table style="min-width:520px"><thead><tr><th>Block</th><th>Plan at the start of the block</th><th class="num">Push</th><th class="num">Pull</th><th class="num">Toss</th></tr></thead><tbody>' +
+      [0, 1, 2].map(function (b) {
+        var t = st.tests[b + 1], mod = st.modPlans.filter(function (m) { return Math.floor((m.week - 1) / 4) === b; });
+        return '<tr><td class="num" style="text-align:left">' + (b + 1) + '</td><td>' + A.planSummary(st.plans[b]) + (mod.length ? '<br><span class="note">Modified after week ' + mod[0].week + ': ' + A.planSummary(mod[mod.length - 1].plan) + '</span>' : '') + '</td>' +
+          LIFTS.map(function (l) { return '<td class="num">' + (t ? A.fmtP(t.lifts[l].progress) + '%' : '') + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div></div>';
+    var hist = runs.slice(-5);
+    h += '<div class="two"><div class="card"><h3>Run comparison</h3><p class="sub">Average percent of the way to the goals, by week, for your recent runs on this device.</p><div class="chartbox" id="chRuns"></div></div>' +
+      '<div class="card"><h3>Run history</h3><div class="tablewrap"><table><thead><tr><th>Run</th><th class="num">Push</th><th class="num">Pull</th><th class="num">Toss</th><th class="num">Goals</th><th class="num">Score</th></tr></thead><tbody>' +
+      hist.slice().reverse().map(function (r) {
+        return '<tr class="' + (r.n === st.runNo ? 'cur' : '') + '"><td>' + r.n + (r.events ? ' <span class="note" style="color:var(--danger)">' + r.events + ' event' + (r.events > 1 ? 's' : '') + '</span>' : '') + '</td>' +
+          r.tested.map(function (v) { return '<td class="num">' + v + '%</td>'; }).join('') + '<td class="num">' + r.goals + '</td><td class="num">' + r.score + '</td></tr>';
+      }).join('') + '</tbody></table></div></div></div>';
+    h += '<div class="card"><h3>What this model leaves out</h3><p class="sub">This was an idealized athlete. Real training is messier.</p><ul class="rules" style="margin:0">' +
+      '<li>Every rhino here responds the same way. Real athletes differ in how fast they recover and how much load their tissue tolerates.</li>' +
+      '<li>Nothing outside training went wrong: no stressful weeks, no missed sessions, no bad luck.</li>' +
+      '<li>Time, sleep and food were unlimited, so every setting could be turned up at once.</li>' +
+      '<li>The same plan always gives the same result. Real test results vary from day to day.</li></ul></div>';
+    h += '<div class="btn-row"><button class="btn primary" id="btnAgain" type="button">Start a new run</button></div>';
+    var d = $('#debrief');
+    d.innerHTML = h; d.hidden = false;
+    charts = [
+      function () { chartProgress($('#chIndex'), st); },
+      function () { chartFeel($('#chFeel'), st); },
+      function () { chartMeters($('#chMeters'), st); },
+      function () { chartRuns($('#chRuns'), hist, st.runNo); }
+    ];
+    charts.forEach(function (c) { c(); });
+    d.scrollIntoView({ behavior: A.reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  function showWhatIf() {
+    var st = A.state(), ds = st.decisions;
+    var policy = function (ev, sim) {
+      var n = sim.events.reduce(function (k, e) { return k + e.decisions.length; }, 0), d = ds[n];
+      if (!d) return E.defaultPolicy(ev);
+      return d.kind === 'rest' ? { kind: 'rest', weeks: d.weeks, early: false } : (d.kind === 'modify' ? { kind: 'modify', scale: 0.5, loadDrop: 10 } : { kind: 'continue' });
+    };
+    var plans = st.plans.map(function (p) { var c = E.copy(p); LIFTS.forEach(function (l) { if (!c.lifts[l].intent) c.lifts[l].intent = 'controlled'; }); return c; });
+    var wi = E.whatIf(plans, policy);
+    var top = wi.variations.filter(function (v) { return v.delta > 0.5; }).slice(0, 5);
+    var h = '';
+    if (!top.length) h = '<p class="note" style="margin-top:12px">No single change on the list would have added more than half a point. This plan is close to the best of its kind.</p>';
+    else {
+      h = '<ul class="whatif">' + top.map(function (v) {
+        return '<li><span>' + v.label + '</span><span class="d">+' + f1(v.delta) + ' points</span><small>' + LIFTS.map(function (l) { return NAMES[l] + ' ' + (v.byLift[l] >= 0 ? '+' : '') + f1(v.byLift[l]); }).join(', ') +
+          (v.events ? '. This version includes ' + v.events + ' injury or overtraining event' + (v.events > 1 ? 's' : '') : '') + '</small></li>';
+      }).join('') + '</ul>';
+    }
+    if (st.sim.events.length || st.modPlans.length) h += '<p class="note" style="margin-top:10px">Your run included an injury, overtraining or a mid-block change, so these figures are estimates based on your block plans.</p>';
+    h += '<p class="note" style="margin-top:10px">Points are the change in the sum of the three final test results, in Rhino Units. Each change is tested alone, so the effects do not simply add up.</p>';
+    $('#whatif').innerHTML = h;
+    $('#btnWhatIf').hidden = true;
+  }
+
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('button'); if (t && t.id === 'btnWhatIf') showWhatIf();
+  });
+  var rz = 0;
+  window.addEventListener('resize', function () {
+    if ($('#debrief').hidden) return;
+    clearTimeout(rz); rz = setTimeout(function () { charts.forEach(function (c) { c(); }); }, 150);
+  });
+
+  window.RhinoDebrief = { build: build };
+})();
+
+</script>
+
+</body>
+</html>
